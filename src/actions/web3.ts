@@ -111,5 +111,5 @@ export const getTokenPrice = async <T extends string>(
   })
   const data: TokenPriceResponse<T> = await response.json()
 
-  return data[token].usd
+  return data?.[token]?.usd
 }

@@ -81,14 +81,14 @@ function AuthContent() {
 
   return (
     <>
-      <Card className="mx-auto w-full max-w-[450px]">
+      <Card className="m-auto w-full max-w-[450px] bg-[#2B2431] border-none">
         <CardHeader className="space-y-4">
-          <Icons.turnkey className="h-16 w-full stroke-0 py-2 dark:stroke-white" />
+          <p className="text-center text-2xl font-bold">Butter-Fi</p>
           <CardTitle className="text-center text-xl font-medium">
             Log in or sign up
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4 flex flex-col">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(() => {})} className="space-y-4">
               <FormField
@@ -144,6 +144,10 @@ function AuthContent() {
               </LoadingButton>
             </form>
           </Form>
+          <div className="text-center flex gap-1 text-sm text-white/40 items-center mx-auto mt-4">
+            Powered by{" "}
+            <Icons.turnkeyBlack className="py-2 text-white/40 w-18" />
+          </div>
         </CardContent>
       </Card>
     </>

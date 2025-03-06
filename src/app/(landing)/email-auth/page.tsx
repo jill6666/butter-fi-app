@@ -33,7 +33,7 @@ function EmailAuthContent() {
     <main className="flex w-full flex-col items-center justify-center">
       <Card className="mx-auto h-full w-full sm:w-1/2">
         <CardHeader className="space-y-4">
-          <Icons.turnkey className="h-12 w-full stroke-0 py-2 dark:stroke-white sm:h-14" />
+          <p className="text-center text-2xl font-bold">Butter-Fi</p>
           <CardTitle className="flex  items-center justify-center text-center">
             {credentialBundle ? (
               <div className="flex items-center gap-2">
@@ -52,6 +52,10 @@ function EmailAuthContent() {
               <span className="font-bold">{userEmail}</span> to sign in.
             </CardDescription>
           )}
+          <div className="text-center flex gap-1 text-sm text-white/40 items-center mx-auto mt-4">
+            Powered by{" "}
+            <Icons.turnkeyBlack className="py-2 text-white/40 w-18" />
+          </div>
         </CardHeader>
       </Card>
     </main>

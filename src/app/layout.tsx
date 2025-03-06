@@ -1,6 +1,6 @@
+import "./globals.css";
 import type { Metadata, Viewport } from "next"
 import { Inter } from "next/font/google"
-import "./globals.css";
 import { Providers } from "@/providers"
 
 import { siteConfig } from "@/config/site"
@@ -68,7 +68,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
       <head />
       <body
         className={cn(
-          "min-h-screen bg-background antialiased",
+          "min-h-screen bg-background font-sans antialiased",
           inter.className
         )}
       >
