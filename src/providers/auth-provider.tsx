@@ -129,7 +129,7 @@ const AuthContext = createContext<{
   logout: async () => {},
 })
 
-const SESSION_EXPIRY = "900" // This is in seconds
+const SESSION_EXPIRY = "86400" // 1 day
 const WARNING_BUFFER = 30 // seconds before expiry to show warning
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useWallets } from "@/providers/wallet-provider"
-import { ArrowLeft, Mail } from "lucide-react"
+import { ArrowLeft, Mail, Trash } from "lucide-react"
 import { useLocalStorage } from "usehooks-ts"
 
 import { PreferredWallet, Wallet } from "@/types/turnkey"
@@ -12,10 +12,12 @@ import { useUser } from "@/hooks/use-user"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Passkeys } from "@/components/passkeys"
+import { useTurnkey } from "@turnkey/sdk-react"
 
 export default function Settings() {
   const router = useRouter()
   const { user } = useUser()
+  const { turnkey, client } = useTurnkey()
   const [preferredWalletSetting, setPreferredWalletSetting] =
     useLocalStorage<PreferredWallet>(PREFERRED_WALLET_KEY, {
       userId: "",
@@ -33,6 +35,20 @@ export default function Settings() {
       }
     }
   }, [state.wallets, preferredWalletSetting])
+
+  const handleDeleteAccount = async () => {
+    try {
+      const currentSession = await turnkey?.currentUserSession()
+      console.log({client, currentSession})
+      const response = await currentSession?.deleteSubOrganization({
+        deleteWithoutExport: true,
+        organizationId: (await currentSession.getOrganization()).organizationData.organizationId,
+      })
+      console.log("response", response)
+    } catch (error) {
+      console.error("Error deleting sub organization", error)
+    }
+  }
 
   return (
     <main className="flex items-center justify-center px-8 py-4 lg:px-36 lg:py-12">
@@ -68,6 +84,15 @@ export default function Settings() {
               </Card>
             </div>
             <Passkeys />
+            <div>
+              <h3 className="mb-2 font-semibold sm:text-lg">Delete Account</h3>
+              <Card className="flex items-center gap-2 rounded-md bg-card p-3 sm:justify-between sm:gap-0">
+                <button onClick={handleDeleteAccount} className="flex items-center space-x-3">
+                  <Trash className="h-4 w-4 text-muted-foreground sm:h-5 sm:w-5" />
+                  <span className="hidden sm:block">Delete Account</span>
+                </button>
+              </Card>
+            </div>
           </CardContent>
         </Card>
       </div>

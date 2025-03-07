@@ -30,7 +30,7 @@ const formSchema = z.object({
 
 function AuthContent() {
   const { user } = useUser()
-  const { passkeyClient } = useTurnkey()
+  const { passkeyClient, client } = useTurnkey()
   const { initEmailLogin, state, loginWithPasskey, loginWithWallet } = useAuth()
   const [loadingAction, setLoadingAction] = useState<string | null>(null)
   const router = useRouter()
