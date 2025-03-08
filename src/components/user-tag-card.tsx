@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useContext, useMemo } from "react"
 import { useWallets } from "@/providers/wallet-provider"
-import { CopyIcon, Download, HandCoins, Upload, PlusIcon } from "lucide-react"
+import { CopyIcon, Download, HandCoins, Upload, PlusIcon, Trash } from "lucide-react"
 import { toast } from "sonner"
 import { formatEther } from "viem"
 
@@ -20,7 +20,7 @@ import {
 import { useGetUserTags } from "@/hooks/use-get-user-tags";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useUser } from "@/hooks/use-user";
-import { updateUserTag, setupUserTag } from "@/actions/turnkey";
+import { updateUserTag, setupUserTag, removeSubOrg, setupUserWithEmailLogin } from "@/actions/turnkey";
 import { useTurnkey } from "@turnkey/sdk-react";
 
 const queryClient = new QueryClient();
@@ -66,6 +66,21 @@ function UserTagCard() {
       console.log(error)
     }
   }
+  const handleDeleteAccount = async () => {
+    const organizationId = user?.organization?.organizationId || "";
+    await client?.deleteSubOrganization({
+      organizationId,
+      deleteWithoutExport: true
+    })
+  }
+  const handleSetupTrader = async () => {
+    if (!user || !user.organization?.organizationId) return
+    await setupUserWithEmailLogin({
+      organizationId: user.organization.organizationId,
+      userId: user.userId,
+      publicKey: selectedAccount?.address || ""
+    })
+  }
 
   const handleAddTrader = async () => {
     // create user and add trader tag
@@ -102,6 +117,14 @@ function UserTagCard() {
       </CardHeader>
       <CardContent className="space-y-1">
         <div className="text-sm flex flex-col">
+          <Button variant="ghost" size="default" className="cursor-pointer" onClick={handleDeleteAccount}>
+            Delete Account
+            {/* <Trash className="h-4 w-4" /> */}
+          </Button>
+          <Button variant="ghost" size="default" className="cursor-pointer" onClick={handleSetupTrader}>
+            Setup Trader
+            {/* <Trash className="h-4 w-4" /> */}
+          </Button>
           <Button variant="ghost" size="default" className="cursor-pointer" onClick={handleAddTrader}>
             Add AI Bot
             <PlusIcon className="h-4 w-4" />

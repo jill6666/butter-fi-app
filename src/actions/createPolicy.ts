@@ -1,17 +1,19 @@
 "use server";
 
-import { TurnkeyActivityError } from "@turnkey/sdk-server";
-import { getTurnkeyClient } from "./turnkeyClient";
+import {
+  type TurnkeyServerClient,
+  TurnkeyActivityError,
+} from "@turnkey/sdk-server";
 
 export default async function createPolicy(
+  turnkeyClient: TurnkeyServerClient,
   policyName: string,
   effect: "EFFECT_ALLOW" | "EFFECT_DENY",
   consensus: string,
   condition: string,
 ): Promise<string> {
   try {
-    const client = await getTurnkeyClient();
-    const { policyId } = await client.createPolicy({
+    const { policyId } = await turnkeyClient.createPolicy({
       policyName,
       condition,
       consensus,
