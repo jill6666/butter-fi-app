@@ -54,7 +54,7 @@ function UserTagCard() {
     }
   }, [ethPrice, selectedAccount?.balance])
 
-  const handleAddTag = async (tag: any) => {
+  const handleAddTag = async (tag: { tagName: string; tagId: string }) => {
     try {
       if (!user || !tag?.tagName) return
       const response = await client?.createUserTag({
@@ -73,7 +73,7 @@ function UserTagCard() {
       const publicKey = await walletClient?.getPublicKey()
       if (!publicKey) throw new Error("Failed to get public key")
 
-      const traderTagId = userTags?.find(tag => tag?.tagName === "Trader")?.tagId 
+      const traderTagId = userTags?.find(tag => tag && tag.tagName === "Trader")?.tagId
       if (!traderTagId) throw new Error("Failed to find trader tag")
       if (!user?.organization?.organizationId) throw new Error("Failed to get organization ID")
 
@@ -110,14 +110,16 @@ function UserTagCard() {
             "Loading..."
           ) : (
             <div className="flex flex-col gap-1">
-              {(userTags || ["-"]).map((i, idx) => (
+              {(userTags || []).map((tag: { tagName: string; tagId: string } | undefined, idx: number) => {
+                const tagName = tag?.tagName ?? "-";
+                return (
                 <div key={idx} className="flex items-center gap-2 w-full justify-between">
-                  {i?.tagName ?? "-"}
-                  <Button variant="ghost" size="icon" className="cursor-pointer" onClick={() => handleAddTag(i)}>
+                  {tagName}
+                  <Button variant="ghost" size="icon" className="cursor-pointer" onClick={() => handleAddTag(tag!)}>
                     <PlusIcon className="h-4 w-4" />
                   </Button>
                 </div>
-              ))}
+              )})}
             </div>
           )
           }
