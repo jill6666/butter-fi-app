@@ -449,7 +449,7 @@ async function createPolicies(
   // SENDING
   // first, get long term storage address(es)
   const longTermStoragePrivateKey = (
-    await getPrivateKeysForTag(subOrgClient, "long-term-storage")
+    await getPrivateKeysForTag(subOrgClient, "long_term_storage")
   )[0];
   const longTermStorageAddress = longTermStoragePrivateKey?.addresses.find(
     (address: any) => {

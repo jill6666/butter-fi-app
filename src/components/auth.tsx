@@ -110,6 +110,7 @@ function AuthContent() {
               />
               <LoadingButton
                 type="submit"
+                variant="outline"
                 className="w-full font-semibold"
                 disabled={!form.formState.isValid}
                 loading={state.loading && loadingAction === "passkey"}
