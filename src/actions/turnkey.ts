@@ -533,9 +533,8 @@ export const oauth = async ({
   return oauthResponse
 }
 
-const devUrl = "http://localhost:3000"; // siteConfig.url.base
 const getMagicLinkTemplate = (action: string, email: string, method: string) =>
-  `${devUrl}/email-${action}?userEmail=${email}&continueWith=${method}&credentialBundle=%s`
+  `${siteConfig.url.base}/email-${action}?userEmail=${email}&continueWith=${method}&credentialBundle=%s`
 
 export const initEmailAuth = async ({
   email,
