@@ -1,0 +1,1 @@
+export { abi as aggregatorAbi } from "./Aggregator.json"
