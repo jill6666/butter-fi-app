@@ -2,6 +2,7 @@ import "./globals.css";
 import type { Metadata, Viewport } from "next"
 import { Inter } from "next/font/google"
 import { Providers } from "@/providers"
+import { AntdRegistry } from '@ant-design/nextjs-registry';
 
 import { siteConfig } from "@/config/site"
 import { cn } from "@/lib/utils"
@@ -72,7 +73,9 @@ export default function RootLayout({ children }: RootLayoutProps) {
           inter.className
         )}
       >
-        <Providers>{children}</Providers>
+        <Providers>
+          <AntdRegistry>{children}</AntdRegistry>
+        </Providers>
       </body>
     </html>
   )
