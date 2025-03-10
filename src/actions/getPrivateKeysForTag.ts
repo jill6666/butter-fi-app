@@ -9,9 +9,10 @@ import type { TurnkeyServerClient, TurnkeyApiTypes } from "@turnkey/sdk-server";
 export default async function getPrivateKeysForTag(
   turnkeyClient: TurnkeyServerClient,
   tagName: string,
+  organizationId?: string,
 ): Promise<TurnkeyApiTypes["v1PrivateKey"][]> {
   const response = await turnkeyClient.listPrivateKeyTags({
-    organizationId: process.env.ORGANIZATION_ID!,
+    organizationId: organizationId || process.env.ORGANIZATION_ID!,
   });
 
   const tag = response.privateKeyTags.find(
@@ -24,12 +25,12 @@ export default async function getPrivateKeysForTag(
 
   if (!tag) {
     throw new Error(
-      `unable to find tag ${tagName} in organization ${process.env.ORGANIZATION_ID}`,
+      `unable to find tag ${tagName} in organization ${organizationId || process.env.ORGANIZATION_ID}`,
     );
   }
 
   const privateKeysResponse = await turnkeyClient.getPrivateKeys({
-    organizationId: process.env.ORGANIZATION_ID!,
+    organizationId: organizationId || process.env.ORGANIZATION_ID!,
   });
 
   const privateKeys = privateKeysResponse.privateKeys.filter(
@@ -40,7 +41,7 @@ export default async function getPrivateKeysForTag(
 
   if (!privateKeys || privateKeys.length == 0) {
     throw new Error(
-      `unable to find tag ${tagName} in organization ${process.env.ORGANIZATION_ID}`,
+      `unable to find tag ${tagName} in organization ${organizationId || process.env.ORGANIZATION_ID}`,
     );
   }
 

@@ -1,7 +1,7 @@
 import { http, createConfig } from '@wagmi/core'
 import { type Chain } from 'viem'
 
-const monadTestnet = {
+export const monadTestnet = {
   id: 10143,
   name: 'Monad Testnet',
   nativeCurrency: { name: 'Ether', symbol: 'MON', decimals: 18 },
