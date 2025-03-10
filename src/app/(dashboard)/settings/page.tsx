@@ -38,7 +38,7 @@ export default function Settings() {
             className="-mb-0.5 w-min sm:w-auto"
             variant="ghost"
             size="icon"
-            onClick={() => router.push("/dashboard")}
+            onClick={() => router.back()}
           >
             <ArrowLeft strokeWidth={2.5} className="h-5 w-5" />
           </Button>

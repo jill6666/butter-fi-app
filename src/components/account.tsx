@@ -110,9 +110,9 @@ export default function Account() {
 
         <DropdownMenuSeparator />
 
-        <DropdownMenuItem onClick={() => router.push("/dashboard")}>
+        <DropdownMenuItem onClick={() => router.push("/account")}>
           <BoxIcon className="mr-2 h-4 w-4" />
-          <span>Dashboard</span>
+          <span>Account</span>
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => router.push("/settings")}>
           <SettingsIcon className="mr-2 h-4 w-4" />

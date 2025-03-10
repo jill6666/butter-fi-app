@@ -182,7 +182,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             // Schedule warning for session expiry
             const expiryTime = Date.now() + parseInt(SESSION_EXPIRY) * 1000
             scheduleSessionWarning(expiryTime)
-            router.push("/dashboard")
+            router.push("/account")
           }
         }
       } catch (error: any) {
@@ -205,7 +205,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             type: "PASSKEY",
             payload: loginResponseToUser(loginResponse, AuthClient.Passkey),
           })
-          router.push("/dashboard")
+          router.push("/account")
         }
       } else {
         // User either does not have an account with a sub organization
@@ -247,7 +247,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               )
             )
 
-            router.push("/dashboard")
+            router.push("/account")
           }
         }
       }
@@ -278,7 +278,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         })
 
         if (loginResponse?.organizationId) {
-          router.push("/dashboard")
+          router.push("/account")
         }
       } else {
         // If the user does not have a suborg id, create a new suborg for the user
@@ -305,7 +305,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             )
           )
 
-          router.push("/dashboard")
+          router.push("/account")
         }
       }
     } catch (error: any) {
