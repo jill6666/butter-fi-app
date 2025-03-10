@@ -108,7 +108,8 @@ function AuthContent() {
                   </FormItem>
                 )}
               />
-              <LoadingButton
+              {/* TODO: passkey login */}
+              {/* <LoadingButton
                 type="submit"
                 variant="outline"
                 className="w-full font-semibold"
@@ -119,7 +120,7 @@ function AuthContent() {
                 }
               >
                 Continue with passkey
-              </LoadingButton>
+              </LoadingButton> */}
 
               <LoadingButton
                 type="button"
@@ -133,7 +134,8 @@ function AuthContent() {
               >
                 Continue with email
               </LoadingButton>
-              <OrSeparator />
+              {/* TODO: wallet login */}
+              {/* <OrSeparator />
               <LoadingButton
                 type="button"
                 variant="outline"
@@ -142,7 +144,7 @@ function AuthContent() {
                 loading={state.loading && loadingAction === "wallet"}
               >
                 Continue with wallet
-              </LoadingButton>
+              </LoadingButton> */}
             </form>
           </Form>
           <div className="text-center flex gap-1 text-sm text-white/40 items-center mx-auto mt-4">

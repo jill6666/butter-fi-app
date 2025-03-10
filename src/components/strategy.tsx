@@ -6,8 +6,8 @@ import { investInStrategy } from "@/actions/investInStrategy"
 import { withdrawFromStrategy } from "@/actions/withdrawFromStrategy"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button"
-import { LogInIcon, PiggyBankIcon, LogOutIcon } from "lucide-react"
-import { monadTestnet } from "@/config/wagmi";
+import { LogInIcon, PiggyBankIcon, LogOutIcon, BotIcon } from "lucide-react"
+import CONFIG from "@/config/protocol";
 import { toast } from "sonner"
 import getPrivateKeysForTag from "@/lib/turnkey/getPrivateKeysForTag"
 import { useTurnkey } from "@turnkey/sdk-react"
@@ -52,7 +52,7 @@ export function Strategy() {
         },
         connectedSigner: turnkeySigner,
       })
-      const txnUrl = `${monadTestnet.blockExplorers?.default.url}/tx/${hash}`
+      const txnUrl = `${CONFIG.EXPLORER_URL}/tx/${hash}`
       toast.success(
         <>
           Transaction successful: <a href={txnUrl} target="_blank" rel="noopener noreferrer">{txnUrl}</a>
@@ -92,7 +92,7 @@ export function Strategy() {
         connectedSigner: turnkeySigner,
         destinationAddress,
       })
-      const txnUrl = `${monadTestnet.blockExplorers?.default.url}/tx/${hash}`
+      const txnUrl = `${CONFIG.EXPLORER_URL}/tx/${hash}`
       toast.success(
         <>
           Transaction successful: <a href={txnUrl} target="_blank" rel="noopener noreferrer">{txnUrl}</a>
@@ -108,10 +108,14 @@ export function Strategy() {
   }
 
   return (
-    <Card className="w-full">
+    <Card className="w-full h-[calc(100vh-10rem)]">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-        <CardTitle className=" font-medium">
-          Strategies
+        <CardTitle className="font-medium flex gap-4 w-full items-center">
+          Strategy Booster
+          <span className="text-sm text-white/60 flex items-center">
+            <BotIcon className="mr-2 h-4 w-4" />
+            Ask AI for finding the best strategy
+          </span>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-1">
