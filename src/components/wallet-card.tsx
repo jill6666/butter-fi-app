@@ -54,34 +54,11 @@ export default function WalletCard() {
 
   return (
     <Card className="w-full">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className=" font-medium">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-0">
+        <CardTitle className="w-full flex justify-between items-center font-medium">
           {selectedWallet?.walletName || (
             <Skeleton className="h-4 w-20 bg-muted-foreground/50" />
           )}
-        </CardTitle>
-
-        <div className="hidden items-center gap-2 sm:flex">
-          <Button onClick={handleFundWallet} className="h-min cursor-pointer ">
-            <HandCoins className="mr-2 h-4 w-4" />
-            Add funds
-          </Button>
-          {/* <TransferDialog /> */}
-          {/* <ImportWalletDialog>
-            <Button variant="outline" onClick={handleImportWallet}>
-              <Download className="mr-2 h-4 w-4" />
-              Import
-            </Button>
-          </ImportWalletDialog> */}
-
-          {/* <ExportWalletDialog>
-            <Button variant="outline" onClick={handleExportWallet}>
-              <Upload className="mr-2 h-4 w-4" /> Export
-            </Button>
-          </ExportWalletDialog> */}
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-1">
         <div className="text-sm">
           {selectedAccount?.address ? (
             <div
@@ -95,50 +72,10 @@ export default function WalletCard() {
             <Skeleton className="h-3 w-32  rounded-sm bg-muted-foreground/50" />
           )}
         </div>
-        <div className="text-4xl font-bold">
-          ${usdAmount?.toFixed(2) || "0.00"}
-          <span className="ml-1 text-sm text-muted-foreground">USD</span>
-        </div>
-        <div className="text-sm text-muted-foreground">
-          {selectedAccount?.balance
-            ? parseFloat(
-                Number(formatEther(selectedAccount?.balance)).toFixed(8)
-              ).toString()
-            : "0"}{" "}
-          ETH
-        </div>
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="">
       </CardContent>
-      <CardFooter className="sm:hidden">
-        <div className="mx-auto flex w-full flex-col items-center gap-2">
-          <Button className="w-full">
-            <HandCoins className="mr-2 h-4 w-4" />
-            Add funds
-          </Button>
-          {/* <TransferDialog /> */}
-          <div className="flex w-full items-center gap-2">
-            {/* <ImportWalletDialog>
-              <Button
-                variant="outline"
-                className="w-full"
-                onClick={handleImportWallet}
-              >
-                <Download className="mr-2 h-4 w-4" />
-                Import
-              </Button>
-            </ImportWalletDialog> */}
-            {/* <ExportWalletDialog>
-              <Button
-                variant="outline"
-                className="w-full"
-                onClick={handleExportWallet}
-              >
-                <Upload className="mr-2 h-4 w-4" />
-                Export
-              </Button>
-            </ExportWalletDialog> */}
-          </div>
-        </div>
-      </CardFooter>
     </Card>
   )
 }

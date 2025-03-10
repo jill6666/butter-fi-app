@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/providers/auth-provider"
 import { useWallets } from "@/providers/wallet-provider"
@@ -8,11 +8,10 @@ import {
   ChevronDownIcon,
   ChevronUpIcon,
   LogOutIcon,
-  PlusCircleIcon,
   SettingsIcon,
+  BoxIcon,
 } from "lucide-react"
 import Jazzicon, { jsNumberForAddress } from "react-jazzicon"
-import { formatEther } from "viem"
 
 import { truncateAddress } from "@/lib/utils"
 import { useUser } from "@/hooks/use-user"
@@ -20,7 +19,6 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
-  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
@@ -54,46 +52,14 @@ export default function Account() {
   const router = useRouter()
   const { logout } = useAuth()
   const { user } = useUser()
-  const { state, newWallet, newWalletAccount, selectWallet, selectAccount } =
-    useWallets()
-  const { selectedWallet, selectedAccount, wallets } = state
+  const { state } = useWallets()
+  const { selectedWallet, selectedAccount } = state
 
   const [isOpen, setIsOpen] = useState(false)
-  const [isNewWalletMode, setIsNewWalletMode] = useState(false)
-  const [newWalletName, setNewWalletName] = useState("")
-
-  const handleNewWallet = (e: Event) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setIsNewWalletMode(true)
-  }
-
-  const handleNewAccount = (e: Event) => {
-    e.preventDefault()
-    e.stopPropagation()
-    newWalletAccount()
-  }
-
-  const handleCreateWallet = useCallback(
-    (e: React.MouseEvent) => {
-      e.preventDefault()
-      e.stopPropagation()
-      newWallet(newWalletName)
-      setIsNewWalletMode(false)
-      setNewWalletName("")
-    },
-    [newWalletName, newWallet]
-  )
 
   const handleLogout = () => {
     logout()
   }
-
-  useEffect(() => {
-    setTimeout(() => {
-      setIsNewWalletMode(false)
-    }, 100)
-  }, [isOpen])
 
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
@@ -143,84 +109,11 @@ export default function Account() {
         </DropdownMenuLabel>
 
         <DropdownMenuSeparator />
-        <DropdownMenuLabel className="">
-          <span>Wallets</span>
-        </DropdownMenuLabel>
-        {wallets.map((wallet) => (
-          <DropdownMenuCheckboxItem
-            key={wallet.walletId}
-            checked={selectedWallet?.walletId === wallet.walletId}
-            onCheckedChange={() => selectWallet(wallet)}
-            onKeyDown={(e: React.KeyboardEvent) => e.stopPropagation()} // Prevent dropdown menu from handling key events
-            className="flex items-center py-2"
-          >
-            {wallet.walletName}
-          </DropdownMenuCheckboxItem>
-        ))}
 
-        {isNewWalletMode ? (
-          <div className="space-y-2 px-2 py-1.5">
-            <input
-              autoFocus
-              type="text"
-              placeholder="Enter wallet name"
-              value={newWalletName}
-              onChange={(e) => setNewWalletName(e.target.value)}
-              onKeyDown={(e) => e.stopPropagation()} // Prevent dropdown menu from handling key events
-              className="w-full bg-transparent px-0 py-1 text-sm text-foreground placeholder-muted-foreground focus:outline-none"
-            />
-            <Button
-              disabled={!newWalletName}
-              onClick={handleCreateWallet}
-              variant="outline"
-              className="w-full text-sm"
-            >
-              Create
-            </Button>
-          </div>
-        ) : (
-          <DropdownMenuItem onSelect={handleNewWallet}>
-            <PlusCircleIcon className="mr-2 h-4 w-4" />
-            <span>New Wallet</span>
-          </DropdownMenuItem>
-        )}
-
-        <DropdownMenuSeparator />
-        <DropdownMenuLabel className="flex items-center gap-2">
-          <span>Accounts</span>
-        </DropdownMenuLabel>
-
-        {selectedWallet?.accounts.map((account) => (
-          <DropdownMenuCheckboxItem
-            key={account.address}
-            checked={selectedAccount?.address === account.address}
-            onCheckedChange={() => selectAccount(account)}
-            className="flex items-center justify-between py-2"
-          >
-            <span>
-              {account.address ? truncateAddress(account.address) : ""}
-            </span>
-
-            <div className="flex items-center gap-1 rounded-full bg-muted-foreground/10 px-2 py-0.5">
-              <span className="text-sm font-semibold">
-                <span className="font-semibold text-white">~</span>
-                {account.balance
-                  ? Number(formatEther(account.balance)).toFixed(2)
-                  : "0"}
-                <span className="ml-0.5 text-xs font-normal text-white">
-                  ETH
-                </span>
-              </span>
-            </div>
-          </DropdownMenuCheckboxItem>
-        ))}
-
-        <DropdownMenuItem onSelect={handleNewAccount}>
-          <PlusCircleIcon className="mr-2 h-4 w-4" />
-          <span>New Account</span>
+        <DropdownMenuItem onClick={() => router.push("/dashboard")}>
+          <BoxIcon className="mr-2 h-4 w-4" />
+          <span>Dashboard</span>
         </DropdownMenuItem>
-
-        <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => router.push("/settings")}>
           <SettingsIcon className="mr-2 h-4 w-4" />
           <span>Settings</span>

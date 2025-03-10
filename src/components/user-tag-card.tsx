@@ -16,6 +16,14 @@ import { setupAdminAndTrader } from "@/lib/turnkey/setupTrader"
 import { useState, useEffect, useMemo } from "react";
 import { OrgUsers } from "@/types/turnkey";
 import { useGetUserTags } from "@/hooks/use-get-user-tags";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 
 const queryClient = new QueryClient();
 
@@ -74,26 +82,34 @@ function UserTagCard() {
     <Card className="w-full">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
         <CardTitle className=" font-medium">
-          User
+          Users
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-1">
-        <div className="text-sm flex gap-2 w-full">
-          {subOrgUserList && subOrgUserList.length > 0 ? (
-            <div className="w-full flex flex-col gap-2">
-              {subOrgUserList.map((user) => (
-                <div key={user.userId} className="w-full flex items-center gap-2 justify-between">
-                  <span className="text-muted-foreground">{user.userName}</span>
-                  <span className="text-muted-foreground">{user.userTags.join(", ")}</span>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <Button variant="default" size="default" className="cursor-pointer border" onClick={handleSetupTrader}>
-              Setup Trader
-            </Button>
-          )}
-        </div>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Username</TableHead>
+              <TableHead>Tags</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {subOrgUserList && subOrgUserList.length > 0 ? (
+              subOrgUserList.map((user) => (
+                <TableRow key={user.userId}>
+                  <TableCell className="p-2 font-medium sm:p-4">{user.userName}</TableCell>
+                  <TableCell className="p-2 text-xs sm:p-4">{user.userTags.join(", ")}</TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={2} className="h-24 text-center">
+                  No users found
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
       </CardContent>
       <CardFooter className="sm:hidden">
         <div className="mx-auto flex w-full flex-col items-center gap-2">
