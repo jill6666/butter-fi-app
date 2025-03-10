@@ -1,52 +1,32 @@
 "use client"
 
-import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { useWallets } from "@/providers/wallet-provider"
-import { ArrowLeft, Mail, Trash } from "lucide-react"
-import { useLocalStorage } from "usehooks-ts"
+import { ArrowLeft, Mail } from "lucide-react"
 
-import { PreferredWallet, Wallet } from "@/types/turnkey"
-import { PREFERRED_WALLET_KEY } from "@/lib/constants"
 import { useUser } from "@/hooks/use-user"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Passkeys } from "@/components/passkeys"
 import { useTurnkey } from "@turnkey/sdk-react"
+import { toast } from "sonner"
 
 export default function Settings() {
   const router = useRouter()
   const { user } = useUser()
-  const { turnkey, client } = useTurnkey()
-  const [preferredWalletSetting, setPreferredWalletSetting] =
-    useLocalStorage<PreferredWallet>(PREFERRED_WALLET_KEY, {
-      userId: "",
-      walletId: "",
-    })
-  const { state } = useWallets()
-  const [preferredWallet, setPreferredWallet] = useState<Wallet | undefined>()
-  useEffect(() => {
-    if (state.wallets.length > 0) {
-      const wallet = state.wallets.find(
-        (wallet) => wallet.walletId === preferredWalletSetting.walletId
-      )
-      if (wallet) {
-        setPreferredWallet(wallet)
-      }
-    }
-  }, [state.wallets, preferredWalletSetting])
+  const { client } = useTurnkey()
 
   const handleDeleteAccount = async () => {
     try {
-      const currentSession = await turnkey?.currentUserSession()
-      console.log({client, currentSession})
-      const response = await currentSession?.deleteSubOrganization({
-        deleteWithoutExport: true,
-        organizationId: (await currentSession.getOrganization()).organizationData.organizationId,
+      if (!user?.organization?.organizationId) return
+      const organizationId = user?.organization?.organizationId || "";
+      await client?.deleteSubOrganization({
+        organizationId,
+        deleteWithoutExport: true
       })
-      console.log("response", response)
+      toast("Account deleted successfully")
     } catch (error) {
       console.error("Error deleting sub organization", error)
+      toast("Failed to delete account")
     }
   }
 
@@ -79,19 +59,25 @@ export default function Settings() {
                   <span className="hidden sm:block">Email</span>
                 </div>
                 <span className=" text-xs text-muted-foreground sm:text-base">
-                  {user?.email}
+                  {user?.email || "-"}
                 </span>
               </Card>
             </div>
             <Passkeys />
-            <div>
-              <h3 className="mb-2 font-semibold sm:text-lg">Delete Account</h3>
-              <Card className="flex items-center gap-2 rounded-md bg-card p-3 sm:justify-between sm:gap-0">
-                <button onClick={handleDeleteAccount} className="flex items-center space-x-3">
-                  <Trash className="h-4 w-4 text-muted-foreground sm:h-5 sm:w-5" />
-                  <span className="hidden sm:block">Delete Account</span>
-                </button>
-              </Card>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg font-semibold sm:text-2xl">
+              Danger Zone
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="w-full flex items-center justify-between">
+              <h3 className="font-semibold sm:text-lg">Delete Account</h3>
+              <Button className="text-xs sm:text-sm" variant="outline" size="sm" onClick={handleDeleteAccount}>
+                <span className="hidden sm:block">Delete Account without Export</span>
+              </Button>
             </div>
           </CardContent>
         </Card>

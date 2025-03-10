@@ -61,8 +61,8 @@ export default function Assets() {
             <TableRow>
               <TableCell className="p-2 font-medium sm:p-4">
                 <div className="flex items-center space-x-2 text-xs sm:text-sm">
-                  <Icons.ethereum className="h-6 w-6" />
-                  <span>Ethereum (Sepolia)</span>
+                  <Icons.monad className="h-6 w-6" />
+                  <span>MON</span>
                 </div>
               </TableCell>
               <TableCell className="hidden font-mono text-xs sm:table-cell">
@@ -77,7 +77,7 @@ export default function Assets() {
                 <div className="font-medium">
                   {amount}
                   <span className="ml-1 text-xs text-muted-foreground">
-                    ETH
+                    MON
                   </span>
                 </div>
                 <div className=" text-sm text-muted-foreground">

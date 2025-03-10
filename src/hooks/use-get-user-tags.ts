@@ -12,6 +12,7 @@ export const useGetUserTags = ({ organizationId }: { organizationId: string }) =
   } = useQuery({
     queryKey: ["user-tags", organizationId],
     queryFn: () => getUserTagList({ organizationId }),
+    enabled: !!organizationId,
   });
   return {
     userTags: userTags,

@@ -1,12 +1,6 @@
 "use client"
 
-import { CopyIcon, Download, HandCoins, Upload, PlusIcon, Trash } from "lucide-react"
-import { toast } from "sonner"
-import { formatEther } from "viem"
-
-import { truncateAddress } from "@/lib/utils"
-import { fundWallet } from "@/lib/web3"
-import { useTokenPrice } from "@/hooks/use-token-price"
+import { HandCoins } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -15,26 +9,26 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { useGetUserTags } from "@/hooks/use-get-user-tags";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useUser } from "@/hooks/use-user";
-import { updateUserTag, setupUserTag, removeSubOrg, setupUserWithEmailLogin } from "@/actions/turnkey";
 import { useTurnkey } from "@turnkey/sdk-react";
 import { setupAdminAndTrader } from "@/lib/turnkey/setupTrader"
+import { useState, useEffect, useMemo } from "react";
+import { OrgUsers } from "@/types/turnkey";
+import { useGetUserTags } from "@/hooks/use-get-user-tags";
 
 const queryClient = new QueryClient();
+
+const tagMap = new Map<string, string>()
 
 function UserTagCard() {
   const { client, walletClient } = useTurnkey()
   const { user } = useUser()
+  const [subOrgUserList, setSubOrgUserList] = useState<OrgUsers>([])
+  const { userTags, isLoadingUserTags } = useGetUserTags({
+    organizationId: user?.organization?.organizationId || ""
+  })
 
-  const handleDeleteAccount = async () => {
-    const organizationId = user?.organization?.organizationId || "";
-    await client?.deleteSubOrganization({
-      organizationId,
-      deleteWithoutExport: true
-    })
-  }
   const handleSetupTrader = async () => {
     if (!user || !user.organization?.organizationId) return
     if (!client) throw new Error("Failed to get client")
@@ -49,6 +43,32 @@ function UserTagCard() {
       subOrgClient: client!
     })
   }
+  const handleGetSubOrgUserList = async () => {
+    if (!user || !user.organization?.organizationId) return
+    if (!client) throw new Error("Failed to get client")
+    const response = await client.getOrganization({
+      organizationId: user.organization.organizationId
+    })
+    const subOrgUserList = response.organizationData.users
+    if (!subOrgUserList) return
+    const users = subOrgUserList.map((user) => ({
+      ...user,
+      userTags: user.userTags.map((tagId) => getUserTagName(tagId))
+    }))
+    setSubOrgUserList(users)
+  }
+
+  useEffect(() => {
+    handleGetSubOrgUserList()
+  }, [client, userTags, user?.organization?.organizationId])
+
+  const getUserTagName = (tagId: string) => {
+    if (isLoadingUserTags) return "Loading..."
+    if (!tagMap.has(tagId)) {
+      tagMap.set(tagId, userTags?.find((tag) => tag.tagId === tagId)?.tagName || "Unknown")
+    }
+    return tagMap.get(tagId) || "Unknown"
+  }
 
   return (
     <Card className="w-full">
@@ -59,12 +79,20 @@ function UserTagCard() {
       </CardHeader>
       <CardContent className="space-y-1">
         <div className="text-sm flex gap-2 w-full">
-          <Button variant="ghost" size="default" className="cursor-pointer border" onClick={handleDeleteAccount}>
-            Delete Account
-          </Button>
-          <Button variant="default" size="default" className="cursor-pointer border" onClick={handleSetupTrader}>
-            Setup Trader
-          </Button>
+          {subOrgUserList && subOrgUserList.length > 0 ? (
+            <div className="w-full flex flex-col gap-2">
+              {subOrgUserList.map((user) => (
+                <div key={user.userId} className="w-full flex items-center gap-2 justify-between">
+                  <span className="text-muted-foreground">{user.userName}</span>
+                  <span className="text-muted-foreground">{user.userTags.join(", ")}</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <Button variant="default" size="default" className="cursor-pointer border" onClick={handleSetupTrader}>
+              Setup Trader
+            </Button>
+          )}
         </div>
       </CardContent>
       <CardFooter className="sm:hidden">

@@ -56,7 +56,7 @@ export function Passkeys() {
 
   return (
     <div className="w-full">
-      <div className="mb-2 flex items-center gap-4">
+      <div className="w-full mb-2 flex items-center justify-between">
         <h3 className="font-semibold sm:text-lg">Passkeys</h3>
         <AddPasskey onPasskeyAdded={onPasskeyAdded} />
       </div>

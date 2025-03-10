@@ -37,3 +37,4 @@ export interface ReadOnlySession {
 }
 
 export type OauthProviderParams = TurnkeyApiTypes["v1OauthProviderParams"]
+export type OrgUsers = TurnkeyApiTypes["v1GetOrganizationResponse"]["organizationData"]["users"]

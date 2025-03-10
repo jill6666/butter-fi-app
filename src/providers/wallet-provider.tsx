@@ -19,7 +19,7 @@ import { getAddress } from "viem"
 
 import { Account, PreferredWallet, Wallet } from "@/types/turnkey"
 import { PREFERRED_WALLET_KEY } from "@/lib/constants"
-import { getBalance } from "@/lib/web3"
+import { getBalance } from "@/actions/web3"
 import { useUser } from "@/hooks/use-user"
 
 interface WalletsState {

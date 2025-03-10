@@ -1,7 +1,10 @@
 "use server"
 
 import { Alchemy, AssetTransfersCategory, Network } from "alchemy-sdk"
-import { Address, getAddress, parseEther } from "viem"
+import { Address, getAddress, parseEther, parseAbiItem } from "viem"
+import { getBalance as wagmiGetBalance, getPublicClient, getBlock } from '@wagmi/core'
+import { wagmiConfig } from "@/actions/wagmi"
+import { getLogs } from 'viem/actions'
 
 import type { Transaction } from "@/types/web3"
 
@@ -17,17 +20,62 @@ const settings = {
 const alchemy = new Alchemy(settings)
 
 export const getBalance = async (address: Address) => {
-  const response = await alchemy.core.getBalance(address, "latest")
-  const balanceBigInt = BigInt(response.toString())
+  const response = await wagmiGetBalance(wagmiConfig, { address })
+  const balanceBigInt = response.value
   return balanceBigInt
 }
+export const getTransactions = async (address: `0x${string}`) => {
+  const publicClient = getPublicClient(wagmiConfig)
+  const normalizedAddress = address.toLowerCase()
 
-export const getTokenBalance = async (address: Address) => {
-  const tokenBalances = await alchemy.core.getTokenBalances(address)
-  return tokenBalances
+  // 取得最近的區塊號
+  // const latestBlock = await publicClient.getBlockNumber()
+  const latestBlock = BigInt(6980450)
+
+  // 取得 logs（查詢最近 10000 個區塊）
+  const receiveLogs = await getLogs(publicClient, {
+    fromBlock: latestBlock - BigInt(100),
+    toBlock: latestBlock,
+    event: parseAbiItem('event Transfer(address indexed from, address indexed to, uint256)'),
+    args: {
+      to: address
+    },
+  })
+  console.log("receiveLogs", receiveLogs)
+
+  const sentLogs = await getLogs(publicClient, {
+    fromBlock: latestBlock - BigInt(100),
+    toBlock: latestBlock,
+    event: parseAbiItem('event Transfer(address indexed from, address indexed to, uint256)'),
+    args: {
+      from: address
+    },
+  })
+
+  const transactions = await Promise.all(
+    [...receiveLogs, ...sentLogs].map(async (log) => {
+      const block = await publicClient.getBlock({ blockNumber: log.blockNumber })
+      return {
+        blockNumber: Number(log.blockNumber),
+        from: getAddress(log.topics[1] as `0x${string}`),
+        to: log.topics[2] ? getAddress(log.topics[2] as `0x${string}`) : null,
+        hash: log.transactionHash,
+        value: log.data ? parseEther(log.data.toString()) : null,
+        timestamp: block.timestamp.toString(),
+        status: normalizedAddress === log.topics[1] ? "sent" : "received",
+      }
+    })
+  )
+
+  // 排序
+  transactions.sort((a, b) => b.blockNumber - a.blockNumber)
+
+  return {
+    sentTransactions: transactions.filter((tx) => tx.status === "sent"),
+    receivedTransactions: transactions.filter((tx) => tx.status === "received"),
+  }
 }
-
-export const getTransactions = async (
+export const getTransactionsAlchemy = async (
   address: Address
 ): Promise<Record<string, Transaction[]>> => {
   // Fetch sent and received transactions concurrently

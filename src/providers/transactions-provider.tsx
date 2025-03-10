@@ -11,7 +11,8 @@ import { useWallets } from "@/providers/wallet-provider"
 import { Address, Hex, TransactionRequest } from "viem"
 
 import { Transaction } from "@/types/web3"
-import { getTransactions, watchMinedTransactions } from "@/lib/web3"
+import { watchMinedTransactions } from "@/lib/web3"
+import { getTransactions } from "@/actions/web3"
 
 type TransactionsState = {
   transactions: { [key: Address]: Transaction[] }
@@ -113,7 +114,7 @@ export const TransactionsProvider: React.FC<{ children: React.ReactNode }> = ({
             type: "SET_TRANSACTIONS",
             payload: {
               address: selectedAccount.address,
-              transactions,
+              transactions: transactions.sentTransactions as Transaction[],
             },
           })
 

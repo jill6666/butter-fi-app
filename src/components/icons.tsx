@@ -1,4 +1,5 @@
 import { Command, Moon, SunMedium } from "lucide-react"
+import Image from "next/image"
 
 export type IconKeys = keyof typeof icons
 
@@ -171,6 +172,9 @@ const icons = {
       />
     </svg>
   ),
+  monad: ({ width = 24, height = 24 }) => (
+    <Image src="/images/monIcon.png" alt="Monad" width={width} height={height} />
+  )
 }
 
 export const Icons: IconsType = icons

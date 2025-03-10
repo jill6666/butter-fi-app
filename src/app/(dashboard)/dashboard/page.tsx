@@ -9,11 +9,11 @@ export default function Dashboard() {
   return (
     <main className="container mx-auto space-y-4 p-2 sm:p-8 lg:space-y-8 xl:px-12 2xl:px-24">
       <TransactionsProvider>
-        <UserTagCard />
         <WalletCard />
         <div className="flex flex-col gap-4">
+          <UserTagCard />
           <Assets />
-          <Activity />
+          {/* <Activity /> */}
         </div>
       </TransactionsProvider>
     </main>
