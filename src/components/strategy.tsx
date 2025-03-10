@@ -14,6 +14,9 @@ import { useTurnkey } from "@turnkey/sdk-react"
 import { TurnkeySigner } from "@turnkey/ethers";
 import { useUser } from "@/hooks/use-user";
 import { ethers } from "ethers";
+import BubbleComponent from "@/components/chat/bubble"
+import WelcomeComponent from "@/components/chat/welcome"
+import PromptComponent from "@/components/chat/prompt"
 
 const MONAD_ENV = {
   chainId: 10143,
@@ -119,7 +122,10 @@ export function Strategy() {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-1">
-        <Button className="w-full" onClick={handleInvestInStrategy}>
+        <WelcomeComponent />
+        <BubbleComponent />
+        <PromptComponent />
+        {/* <Button className="w-full" onClick={handleInvestInStrategy}>
           <LogInIcon className="mr-2 h-4 w-4" />
           Invest
         </Button>
@@ -130,7 +136,7 @@ export function Strategy() {
         <Button className="w-full" onClick={handleWithdrawFromLongTermStorage}>
           <PiggyBankIcon className="mr-2 h-4 w-4" />
           Withdraw
-        </Button>
+        </Button> */}
       </CardContent>
     </Card>
   )
