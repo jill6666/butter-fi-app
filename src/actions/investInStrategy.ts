@@ -22,7 +22,7 @@ import { TurnkeySigner } from "@turnkey/ethers";
       throw new Error("Cannot execute a trade without a connected wallet");
     }
   
-    // TODO: implement the transaction
+    // TODO: implement the transaction and setup policies
     const tx = {
       data: "0x0000000",
       to: aggregatorAddress,

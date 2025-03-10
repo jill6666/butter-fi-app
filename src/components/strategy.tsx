@@ -6,7 +6,7 @@ import { investInStrategy } from "@/actions/investInStrategy"
 import { withdrawFromStrategy } from "@/actions/withdrawFromStrategy"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button"
-import { HandCoins } from "lucide-react"
+import { LogInIcon, PiggyBankIcon, LogOutIcon } from "lucide-react"
 import { monadTestnet } from "@/config/wagmi";
 import { toast } from "sonner"
 import getPrivateKeysForTag from "@/lib/turnkey/getPrivateKeysForTag"
@@ -68,15 +68,20 @@ export function Strategy() {
     if (!client || !walletClient || !user?.organization?.organizationId) return
     const organizationId = user?.organization?.organizationId;
     try {
-      const privateKeys = await getPrivateKeysForTag(client, "trading", organizationId)
-      if (!privateKeys.length) throw new Error("Failed to get private key")
+      const tradingPrivateKeys = await getPrivateKeysForTag(client, "trading", organizationId)
+      const longTermPrivateKeys = await getPrivateKeysForTag(client, "long_term_storage", organizationId)
+      if (!tradingPrivateKeys.length || !longTermPrivateKeys.length) throw new Error("Failed to get private key")
 
-      const privateKeyId = privateKeys[0].privateKeyId
+      const privateKeyId = tradingPrivateKeys[0].privateKeyId
       const turnkeySigner = (new TurnkeySigner({
         client,
         organizationId,
         signWith: privateKeyId
       })).connect(provider)
+      const destinationAddress = (longTermPrivateKeys?.[0]?.addresses?.[0]?.address) as `0x${string}`
+      if (!destinationAddress) throw new Error("Failed to get destination address")
+
+      // withdraw and send to long term storage
       const hash = await withdrawFromStrategy({
         aggregatorAddress: "0x1234567890123456789012345678901234567890",
         params: {
@@ -85,6 +90,7 @@ export function Strategy() {
           amount: BigInt(1000000000000000000)
         },
         connectedSigner: turnkeySigner,
+        destinationAddress,
       })
       const txnUrl = `${monadTestnet.blockExplorers?.default.url}/tx/${hash}`
       toast.success(
@@ -97,6 +103,10 @@ export function Strategy() {
     }
   }
 
+  const handleWithdrawFromLongTermStorage = async () => {
+    // TODO: implement this function
+  }
+
   return (
     <Card className="w-full">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
@@ -106,11 +116,15 @@ export function Strategy() {
       </CardHeader>
       <CardContent className="space-y-1">
         <Button className="w-full" onClick={handleInvestInStrategy}>
-          <HandCoins className="mr-2 h-4 w-4" />
+          <LogInIcon className="mr-2 h-4 w-4" />
           Invest
         </Button>
         <Button className="w-full" onClick={handleWithdrawFromStrategy}>
-          <HandCoins className="mr-2 h-4 w-4" />
+          <LogOutIcon className="mr-2 h-4 w-4" />
+          Leave Strategy
+        </Button>
+        <Button className="w-full" onClick={handleWithdrawFromLongTermStorage}>
+          <PiggyBankIcon className="mr-2 h-4 w-4" />
           Withdraw
         </Button>
       </CardContent>
