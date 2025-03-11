@@ -2,13 +2,13 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { useTransactions } from "@/providers/transactions-provider"
-import { useWallets } from "@/providers/wallet-provider"
+import { useTransactions } from "@/providers/TransactionsProvider"
+import { useWallets } from "@/providers/WalletProvider"
 import { ArrowDownIcon, ArrowUpIcon, LoaderIcon } from "lucide-react"
 import { formatEther } from "viem"
 
 import type { Transaction } from "@/types/web3"
-import { useTokenPrice } from "@/hooks/use-token-price"
+import { useTokenPrice } from "@/hooks/useTokenPrice"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import {

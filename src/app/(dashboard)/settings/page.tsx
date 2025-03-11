@@ -3,10 +3,10 @@
 import { useRouter } from "next/navigation"
 import { ArrowLeft, Mail } from "lucide-react"
 
-import { useUser } from "@/hooks/use-user"
+import { useUser } from "@/hooks/useUser"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Passkeys } from "@/components/passkeys"
+import { Passkeys } from "@/components/Passkeys"
 import { useTurnkey } from "@turnkey/sdk-react"
 import { toast } from "sonner"
 

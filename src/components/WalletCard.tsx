@@ -1,14 +1,14 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useWallets } from "@/providers/wallet-provider"
+import { useWallets } from "@/providers/WalletProvider"
 import { CopyIcon, Download, HandCoins, Upload } from "lucide-react"
 import { toast } from "sonner"
 import { formatEther } from "viem"
 
 import { truncateAddress } from "@/lib/utils"
 import { fundWallet } from "@/lib/web3"
-import { useTokenPrice } from "@/hooks/use-token-price"
+import { useTokenPrice } from "@/hooks/useTokenPrice"
 import { Button } from "@/components/ui/button"
 import {
   Card,

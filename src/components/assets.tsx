@@ -1,11 +1,11 @@
 "use client"
 
 import { useMemo } from "react"
-import { useWallets } from "@/providers/wallet-provider"
+import { useWallets } from "@/providers/WalletProvider"
 import { formatEther } from "viem"
 
 import { truncateAddress } from "@/lib/utils"
-import { useTokenPrice } from "@/hooks/use-token-price"
+import { useTokenPrice } from "@/hooks/useTokenPrice"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Table,
@@ -16,7 +16,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 
-import { Icons } from "./icons"
+import { Icons } from "./Icons"
 
 export default function Assets() {
   const { state } = useWallets()

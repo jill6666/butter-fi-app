@@ -1,7 +1,7 @@
 import Link from "next/link"
 
-import Account from "./account"
-import { Icons } from "./icons"
+import Account from "./Account"
+import { Icons } from "./Icons"
 
 export default function NavMenu() {
   return (

@@ -1,9 +1,9 @@
 import Link from "next/link"
 import { CheckCircle, GitFork, ShieldCheck } from "lucide-react"
 
-import { Icons } from "@/components/icons"
+import { Icons } from "@/components/Icons"
 
-import Feature from "./feature"
+import Feature from "./Feature"
 
 export default function Features() {
   return (

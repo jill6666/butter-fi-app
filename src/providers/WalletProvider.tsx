@@ -20,7 +20,7 @@ import { getAddress } from "viem"
 import { Account, PreferredWallet, Wallet } from "@/types/turnkey"
 import { PREFERRED_WALLET_KEY } from "@/lib/constants"
 import { getBalance } from "@/actions/web3"
-import { useUser } from "@/hooks/use-user"
+import { useUser } from "@/hooks/useUser"
 
 interface WalletsState {
   loading: boolean

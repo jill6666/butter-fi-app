@@ -1,7 +1,5 @@
 import { Toaster } from "sonner"
 
-import Features from "@/components/features"
-
 interface LandingLayoutProps {
   children: React.ReactNode
 }

@@ -1,6 +1,6 @@
-import { TransactionsProvider } from "@/providers/transactions-provider"
+import { TransactionsProvider } from "@/providers/TransactionsProvider"
 
-import Strategy from "@/components/strategy"
+import Strategy from "@/components/Strategy"
 
 export default function Dashboard() { 
   return (

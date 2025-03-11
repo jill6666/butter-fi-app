@@ -1,8 +1,8 @@
-import { WalletsProvider } from "@/providers/wallet-provider"
+import { WalletsProvider } from "@/providers/WalletProvider"
 
 import { Toaster } from "@/components/ui/sonner"
-import NavMenu from "@/components/nav-menu"
-import { SessionExpiryWarning } from "@/components/session-expiry-warning"
+import NavMenu from "@/components/NavMenu"
+import { SessionExpiryWarning } from "@/components/SessionExpiryWarning"
 
 export default function DashboardLayout({
   children,

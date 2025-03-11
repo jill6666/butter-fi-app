@@ -5,11 +5,11 @@ import { getAuthenticator, getAuthenticators } from "@/actions/turnkey"
 import { useTurnkey } from "@turnkey/sdk-react"
 
 import { Authenticator } from "@/types/turnkey"
-import { useUser } from "@/hooks/use-user"
+import { useUser } from "@/hooks/useUser"
 import { Skeleton } from "@/components/ui/skeleton"
 
-import AddPasskey from "./add-passkey"
-import { PasskeyItem } from "./passkey-item"
+import AddPasskey from "./AddPasskey"
+import { PasskeyItem } from "./PasskeyItem"
 
 export function Passkeys() {
   const { client } = useTurnkey()

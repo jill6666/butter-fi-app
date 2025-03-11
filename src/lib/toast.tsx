@@ -1,6 +1,6 @@
 import { toast } from "sonner"
 
-import ViewTransactionButton from "@/components/view-transaction.button"
+import ViewTransactionButton from "@/components/ViewTransaction.button"
 
 export const showTransactionToast = ({
   id,

@@ -12,12 +12,12 @@ import { toast } from "sonner"
 import getPrivateKeysForTag from "@/lib/turnkey/getPrivateKeysForTag"
 import { useTurnkey } from "@turnkey/sdk-react"
 import { TurnkeySigner } from "@turnkey/ethers";
-import { useUser } from "@/hooks/use-user";
+import { useUser } from "@/hooks/useUser";
 import { ethers } from "ethers";
-import BubbleComponent from "@/components/chat/bubble"
-import WelcomeComponent from "@/components/chat/welcome"
-import PromptComponent from "@/components/chat/prompt"
-import SenderComponent from "@/components/chat/sender"
+import BubbleComponent from "@/components/chat/Bubble"
+import WelcomeComponent from "@/components/chat/Welcome"
+import PromptComponent from "@/components/chat/Prompt"
+import SenderComponent from "@/components/chat/Sender"
 import { App, ConfigProvider, theme } from "antd";
 import { useState } from "react";
 

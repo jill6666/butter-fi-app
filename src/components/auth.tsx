@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { useAuth } from "@/providers/auth-provider"
+import { useAuth } from "@/providers/AuthProvider"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useTurnkey } from "@turnkey/sdk-react"
 import { useForm } from "react-hook-form"
@@ -10,7 +10,7 @@ import { toast } from "sonner"
 import * as z from "zod"
 
 import { Email } from "@/types/turnkey"
-import { useUser } from "@/hooks/use-user"
+import { useUser } from "@/hooks/useUser"
 import { LoadingButton } from "@/components/ui/button.loader"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -21,8 +21,8 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import OrSeparator from "@/components/or-separator"
-import { Icons } from "./icons"
+import OrSeparator from "@/components/OrSeparator"
+import { Icons } from "./Icons"
 
 const formSchema = z.object({
   email: z.string().email("Invalid email address"),

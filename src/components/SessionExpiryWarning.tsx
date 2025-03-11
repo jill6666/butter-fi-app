@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef } from "react"
-import { useAuth } from "@/providers/auth-provider"
+import { useAuth } from "@/providers/AuthProvider"
 import { toast } from "sonner"
 
 const WARNING_BUFFER = 15 // seconds

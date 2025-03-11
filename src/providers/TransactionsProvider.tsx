@@ -7,7 +7,7 @@ import React, {
   useReducer,
   useRef,
 } from "react"
-import { useWallets } from "@/providers/wallet-provider"
+import { useWallets } from "@/providers/WalletProvider"
 import { Address, Hex, TransactionRequest } from "viem"
 
 import { Transaction } from "@/types/web3"

@@ -10,12 +10,12 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useUser } from "@/hooks/use-user";
+import { useUser } from "@/hooks/useUser";
 import { useTurnkey } from "@turnkey/sdk-react";
 import { setupAdminAndTrader } from "@/lib/turnkey/setupTrader"
 import { useState, useEffect, useMemo } from "react";
 import { OrgUsers } from "@/types/turnkey";
-import { useGetUserTags } from "@/hooks/use-get-user-tags";
+import { useGetUserTags } from "@/hooks/useGetUserTags";
 import {
   Table,
   TableBody,

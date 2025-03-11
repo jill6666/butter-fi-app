@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useTurnkey } from "@turnkey/sdk-react";
-import { useUser } from "@/hooks/use-user";
+import { useUser } from "@/hooks/useUser";
 import { getUserTagList } from "@/actions/turnkey";
 
 export const useGetUserTags = ({ organizationId }: { organizationId: string }) => {

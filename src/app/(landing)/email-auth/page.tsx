@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect } from "react"
 import { useSearchParams } from "next/navigation"
-import { useAuth } from "@/providers/auth-provider"
+import { useAuth } from "@/providers/AuthProvider"
 import { useTurnkey } from "@turnkey/sdk-react"
 import { Loader } from "lucide-react"
 
@@ -12,7 +12,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { Icons } from "@/components/icons"
+import { Icons } from "@/components/Icons"
 
 function EmailAuthContent() {
   const searchParams = useSearchParams()

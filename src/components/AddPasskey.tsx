@@ -2,7 +2,7 @@ import { useState } from "react"
 import { useTurnkey } from "@turnkey/sdk-react"
 import { toast } from "sonner"
 
-import { useUser } from "@/hooks/use-user"
+import { useUser } from "@/hooks/useUser"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,

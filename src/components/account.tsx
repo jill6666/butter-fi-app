@@ -2,8 +2,8 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { useAuth } from "@/providers/auth-provider"
-import { useWallets } from "@/providers/wallet-provider"
+import { useAuth } from "@/providers/AuthProvider"
+import { useWallets } from "@/providers/WalletProvider"
 import {
   ChevronDownIcon,
   ChevronUpIcon,
@@ -14,7 +14,7 @@ import {
 import Jazzicon, { jsNumberForAddress } from "react-jazzicon"
 
 import { truncateAddress } from "@/lib/utils"
-import { useUser } from "@/hooks/use-user"
+import { useUser } from "@/hooks/useUser"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {

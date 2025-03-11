@@ -1,9 +1,8 @@
-import { TransactionsProvider } from "@/providers/transactions-provider"
+import { TransactionsProvider } from "@/providers/TransactionsProvider"
 
-import Activity from "@/components/activity"
-import Assets from "@/components/assets"
-import WalletCard from "@/components/wallet-card"
-import UserTagCard from "@/components/user-tag-card"
+import Assets from "@/components/Assets"
+import WalletCard from "@/components/WalletCard"
+import UserTagCard from "@/components/UserTagCard"
 
 export default function Dashboard() {
   return (
@@ -13,7 +12,6 @@ export default function Dashboard() {
         <div className="flex flex-col gap-4">
           <UserTagCard />
           <Assets />
-          {/* <Activity /> */}
         </div>
       </TransactionsProvider>
     </main>
