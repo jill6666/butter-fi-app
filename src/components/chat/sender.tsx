@@ -1,16 +1,25 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Sender } from '@ant-design/x';
-import { App } from 'antd';
 
-const SenderComponent: React.FC = () => {
-  const { message } = App.useApp();
-
+const SenderComponent = ({
+  onSubmit,
+  disabled
+}: {
+  onSubmit: (content: string) => void
+  disabled?: boolean
+}) => {
+  const [value, setValue] = useState('');
   return (
     <Sender
-      submitType="shiftEnter"
-      placeholder="Press Shift + Enter to send message"
+      submitType="enter"
+      placeholder="Press Enter to send message"
+      value={value}
+      onChange={setValue}
+      disabled={disabled}
       onSubmit={() => {
-        message.success('Send message successfully!');
+        if (!value) return
+        onSubmit(value)
+        setValue('')
       }}
     />
   );

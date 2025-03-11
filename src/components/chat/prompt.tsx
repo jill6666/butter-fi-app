@@ -6,11 +6,8 @@ import type { PromptsProps } from '@ant-design/x';
 import {
   BulbOutlined,
   InfoCircleOutlined,
-  RocketOutlined,
-  SmileOutlined,
-  WarningOutlined,
+  RocketOutlined
 } from '@ant-design/icons';
-import { App } from 'antd';
 
 const items: PromptsProps['items'] = [
   {
@@ -33,15 +30,17 @@ const items: PromptsProps['items'] = [
   },
 ];
 
-const PromptComponent = () => {
-  const { message } = App.useApp();
-
+const PromptComponent = ({
+  onPromptClick
+}: {
+  onPromptClick?: (item: string) => void
+}) => {
   return (
     <Prompts
       title="✨ Start with a Prompt"
       items={items}
       onItemClick={(info) => {
-        message.success(`You clicked a prompt: ${info.data.label}`);
+        onPromptClick && onPromptClick(`${info.data.description}`);
       }}
     />
   );
