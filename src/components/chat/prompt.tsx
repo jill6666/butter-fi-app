@@ -14,43 +14,31 @@ import { App } from 'antd';
 
 const items: PromptsProps['items'] = [
   {
-    key: '1',
-    icon: <BulbOutlined style={{ color: '#FFD700' }} />,
-    label: 'Ignite Your Creativity',
-    description: 'Got any sparks for a new project?',
+    key: '3',
+    icon: <RocketOutlined style={{ color: '#722ED1' }} />,
+    label: 'Saving Time on Research',
+    description: 'Suggest 3 strategies with at least 7% APR',
   },
   {
     key: '2',
     icon: <InfoCircleOutlined style={{ color: '#1890FF' }} />,
-    label: 'Uncover Background Info',
-    description: 'Help me understand the background of this topic.',
+    label: 'Learn More',
+    description: 'What is Butter Finance and how it works?',
   },
   {
-    key: '3',
-    icon: <RocketOutlined style={{ color: '#722ED1' }} />,
-    label: 'Efficiency Boost Battle',
-    description: 'How can I work faster and better?',
-  },
-  {
-    key: '4',
-    icon: <SmileOutlined style={{ color: '#52C41A' }} />,
-    label: 'Tell me a Joke',
-    description: 'Why do not ants get sick? Because they have tiny ant-bodies!',
-  },
-  {
-    key: '5',
-    icon: <WarningOutlined style={{ color: '#FF4D4F' }} />,
-    label: 'Common Issue Solutions',
-    description: 'How to solve common issues? Share some tips!',
+    key: '1',
+    icon: <BulbOutlined style={{ color: '#FFD700' }} />,
+    label: 'Keep Safe when Leveraging Turnkey',
+    description: 'Why use Turnkey?',
   },
 ];
 
-const Demo = () => {
+const PromptComponent = () => {
   const { message } = App.useApp();
 
   return (
     <Prompts
-      title="✨ Inspirational Sparks and Marvelous Tips"
+      title="✨ Start with a Prompt"
       items={items}
       onItemClick={(info) => {
         message.success(`You clicked a prompt: ${info.data.label}`);
@@ -59,8 +47,4 @@ const Demo = () => {
   );
 };
 
-export default () => (
-  <App>
-    <Demo />
-  </App>
-);
+export default PromptComponent;
