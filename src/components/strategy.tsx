@@ -14,6 +14,12 @@ import { useTurnkey } from "@turnkey/sdk-react"
 import { TurnkeySigner } from "@turnkey/ethers";
 import { useUser } from "@/hooks/use-user";
 import { ethers } from "ethers";
+import BubbleComponent from "@/components/chat/bubble"
+import WelcomeComponent from "@/components/chat/welcome"
+import PromptComponent from "@/components/chat/prompt"
+import SenderComponent from "@/components/chat/sender"
+import { App, ConfigProvider, theme } from "antd";
+import { useState } from "react";
 
 const MONAD_ENV = {
   chainId: 10143,
@@ -24,6 +30,7 @@ const provider = new ethers.JsonRpcProvider("https://monad-testnet.drpc.org", MO
 const queryClient = new QueryClient();
 
 export function Strategy() {
+  const [inConversation, setInConversation] = useState(false)
   const { client, walletClient } = useTurnkey()
   const { user } = useUser()
 
@@ -118,19 +125,22 @@ export function Strategy() {
           </span>
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-1">
-        <Button className="w-full" onClick={handleInvestInStrategy}>
-          <LogInIcon className="mr-2 h-4 w-4" />
-          Invest
-        </Button>
-        <Button className="w-full" onClick={handleWithdrawFromStrategy}>
-          <LogOutIcon className="mr-2 h-4 w-4" />
-          Leave Strategy
-        </Button>
-        <Button className="w-full" onClick={handleWithdrawFromLongTermStorage}>
-          <PiggyBankIcon className="mr-2 h-4 w-4" />
-          Withdraw
-        </Button>
+      <CardContent className="space-y-1 h-[calc(100%-4rem)]">
+        <ConfigProvider theme={{ algorithm: theme.darkAlgorithm }}>
+          <App className="h-full w-full flex flex-col gap-4">
+            <div className="w-full h-[calc(100%-4rem)] overflow-scroll flex flex-col">
+              {inConversation ? <BubbleComponent /> : (
+                <>
+                  <WelcomeComponent />
+                  <div className="mt-auto">
+                    <PromptComponent />
+                  </div>
+                </>
+              )}
+            </div>
+            <SenderComponent />
+          </App>
+        </ConfigProvider>
       </CardContent>
     </Card>
   )
