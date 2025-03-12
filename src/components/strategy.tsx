@@ -23,6 +23,8 @@ import { formatEther, parseUnits } from "viem"
 import { Loader } from "lucide-react"
 import { useBalanceOf } from "@/hooks/useBalanceOf";
 import { useTradingSigner } from "@/hooks/useTradingSigner";
+import { useAllowance } from "@/hooks/useAllowance";
+import { approveToken } from "@/actions/investInStrategy";
 
 const roles: GetProp<typeof Bubble.List, 'roles'> = {
   [Role.ASSISTANT]: {
@@ -66,6 +68,11 @@ export function Strategy() {
   const [amount, setAmount] = useState(0)
   const [isProcessing, setIsProcessing] = useState(false)
   const { data: signer, isLoading: isLoadingSigner } = useTradingSigner()
+  const { allowance, isLoadingAllowance } = useAllowance(
+    selectedStrategy?.token,
+    signer?.signerAddress,
+    CONFIG.CONTRACT_ADDRESSES.Aggregator
+  )
   
   useEffect(() => {
     const lastMessage = messages[messages.length - 1]
@@ -74,16 +81,21 @@ export function Strategy() {
     }
   }, [messages])
 
+  const isValidAllowance = useMemo(() => {
+    return allowance && allowance > parseUnits(amount.toString(), 18)
+  }, [allowance, amount])
+
   const { balance, isLoadingBalance, refetchBalance } = useBalanceOf(
     selectedStrategy?.token,
     signer?.signerAddress
   )
 
   const isSomethingLoading = useMemo(() => {
-    return isLoadingSigner || isLoadingBalance
+    return isLoadingSigner || isLoadingBalance || isLoadingAllowance
   }, [
     isLoadingSigner,
-    isLoadingBalance
+    isLoadingBalance,
+    isLoadingAllowance
   ])
 
   const handleInvestInStrategy = async (strategyId: string, token: `0x${string}`) => {
@@ -95,6 +107,19 @@ export function Strategy() {
       const turnkeySigner = signer?.turnkeySigner
       const signerAddress = signer?.signerAddress
       const _amount = parseUnits(amount.toString(), 18)
+
+      if (!isValidAllowance) {
+        await approveToken({
+          aggregatorAddress: CONFIG.CONTRACT_ADDRESSES.Aggregator,
+          params: {
+            user: signerAddress,
+            strategyId: Number(strategyId),
+            token,
+            amount: _amount
+          },
+          connectedSigner: turnkeySigner,
+        })
+      }
 
       const hash = await investInStrategy({
         aggregatorAddress: CONFIG.CONTRACT_ADDRESSES.Aggregator,

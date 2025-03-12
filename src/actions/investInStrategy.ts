@@ -1,6 +1,48 @@
 import { aggregatorAbi } from "@/lib/abis";
 import { TurnkeySigner } from "@turnkey/ethers";
 import { ethers } from "ethers";
+import { erc20Abi } from "viem";
+
+export const approveToken = async ({
+  aggregatorAddress,
+  params,
+  connectedSigner,
+}: {
+  aggregatorAddress: `0x${string}`;
+  params: {
+    user: `0x${string}`;
+    strategyId: number;
+    token: `0x${string}`;
+    amount: bigint;
+  };
+  connectedSigner: TurnkeySigner
+}): Promise<`0x${string}`> => {
+  const provider = connectedSigner.provider!;
+  const address = await connectedSigner.getAddress();
+
+  if (!address || !provider) {
+    throw new Error("Cannot execute a trade without a connected wallet");
+  }
+  // approve token
+  const approveTx = {
+    data: ethers.Interface.from(erc20Abi).encodeFunctionData("approve", [
+      aggregatorAddress, // spenderAddress
+      params.amount
+    ]),
+    to: params.token,
+    from: address,
+    maxFeePerGas: ethers.parseUnits("50", "gwei"),
+    maxPriorityFeePerGas: ethers.parseUnits("2", "gwei"),
+  };
+
+  const approveTxResult = await connectedSigner.sendTransaction(approveTx);
+  console.log("Awaiting confirmation for approve tx...\n");
+  await connectedSigner.provider!.waitForTransaction(
+    approveTxResult.hash,
+    1,
+  );
+  return approveTxResult.hash as `0x${string}`;
+}
 
 export const investInStrategy = async ({
   aggregatorAddress,
