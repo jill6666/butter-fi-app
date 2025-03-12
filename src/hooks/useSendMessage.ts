@@ -82,7 +82,7 @@ const prompt2Response = {
 }
 // default mock data
 const defaultMockData = {
-  LLM_response: "Thanks for your question! We'll get back to you soon.",
+  LLM_response: "Thanks! You are the best. 💅",
   type: MessageType.PURE_STRING_RESPONSE,
   strategies: []
 }

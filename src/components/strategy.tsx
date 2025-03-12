@@ -23,6 +23,9 @@ import { useSendMessage, Role } from "@/hooks/useSendMessage"
 import { Bubble, Prompts } from '@ant-design/x';
 import type { GetProp, GetRef } from 'antd';
 import { ArrowLeftIcon } from "lucide-react";
+import { useWallets } from "@/providers/WalletProvider"
+import { formatEther } from "viem"
+import { Loader } from "lucide-react"
 
 const MONAD_ENV = {
   chainId: 10143,
@@ -44,8 +47,8 @@ const roles: GetProp<typeof Bubble.List, 'roles'> = {
     },
     loadingRender: () => (
       <Space>
+        <Loader className="h-4 w-4 animate-spin" />
         👽 Wait, I'm thinking...
-        <Spin size="small" />
       </Space>
     ),
   },
@@ -61,6 +64,8 @@ const queryClient = new QueryClient();
 export function Strategy() {
   const { client, walletClient } = useTurnkey()
   const { user } = useUser()
+  const { state } = useWallets()
+  const { selectedAccount } = state
   const { onRequest, messages, isPending, isError } = useSendMessage()
   const listRef = useRef<GetRef<typeof Bubble.List>>(null);
   const [selectedStrategy, setSelectedStrategy] = useState<{
@@ -70,6 +75,7 @@ export function Strategy() {
     description: string
   } | null>(null)
   const [amount, setAmount] = useState(0)
+  const [isLoading, setIsLoading] = useState(false)
   
   useEffect(() => {
     const lastMessage = messages[messages.length - 1]
@@ -80,20 +86,22 @@ export function Strategy() {
 
   const handleInvestInStrategy = async (strategyId: string, token: `0x${string}`) => {
     // FIXME: cannot get client from useTurnkey QQ
-    if (!client) return toast.error("Failed to get client")
+    if (!client) return toast.error("Failed to get client, please try again.")
     if (!walletClient || !user?.organization?.organizationId || !strategyId || !token) return
     const organizationId = user?.organization?.organizationId;
-
+    
     try {
+      setIsLoading(true)
       const privateKeys = await getPrivateKeysForTag(client, "trading", organizationId)
-      if (!privateKeys.length) throw new Error("Failed to get private key")
-
+      if (!privateKeys.length) throw new Error("Failed to get private key, please try again.")
+        
       const privateKeyId = privateKeys[0].privateKeyId
       const turnkeySigner = (new TurnkeySigner({
         client,
         organizationId,
         signWith: privateKeyId
       })).connect(provider)
+      const userAddress = selectedAccount?.address; // TODO: should I send userAddress or signerAddress?
       const signerAddress = (await turnkeySigner.getAddress()) as `0x${string}`
       const amount = BigInt(10**18)
 
@@ -115,7 +123,9 @@ export function Strategy() {
       )
     } catch (error) {
       console.log("error", error)
-      toast.error("Failed to invest in strategy")
+      toast.error("Failed to invest in strategy, please try again.")
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -180,11 +190,11 @@ export function Strategy() {
                               <div className="flex flex-col gap-4">
                                 <div className="w-full flex flex-col gap-1">
                                 <div className="text-sm w-full flex items-center gap-2 justify-between text-white/60">
-                                  Balance: 100 MON
+                                  Balance: {selectedAccount?.balance ? formatEther(selectedAccount?.balance) : "0"} MON
                                   <Button
                                     variant="default"
                                     size="icon"
-                                    onClick={() => setAmount(100)}
+                                    onClick={() => setAmount(Number(selectedAccount?.balance ? formatEther(selectedAccount?.balance) : "0"))}
                                   >
                                     Max
                                   </Button>
@@ -199,10 +209,15 @@ export function Strategy() {
                                 <Button
                                   variant="default"
                                   onClick={() => handleInvestInStrategy(selectedStrategy.strategyId, selectedStrategy.token)}
-                                  disabled={isPending || isError || amount <= 0}
+                                  disabled={isPending || isError || amount <= 0 || amount > (selectedAccount?.balance ? Number(formatEther(selectedAccount?.balance)) : 0)}
                                   className="bg-[#6E54FF]"
                                 >
-                                  Confirm
+                                  {isLoading ? (
+                                    <>
+                                      <Loader className="h-4 w-4 animate-spin" />
+                                      <span className="ml-2">Loading...</span>
+                                    </>
+                                  ) : "Confirm"}
                                 </Button>
                               </div>
                               </div>
