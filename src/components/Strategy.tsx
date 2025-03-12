@@ -25,6 +25,7 @@ import { useBalanceOf } from "@/hooks/useBalanceOf";
 import { useTradingSigner } from "@/hooks/useTradingSigner";
 import { useAllowance } from "@/hooks/useAllowance";
 import { approveToken } from "@/actions/investInStrategy";
+import { useWallets } from "@/providers/WalletProvider"
 
 const roles: GetProp<typeof Bubble.List, 'roles'> = {
   [Role.ASSISTANT]: {
@@ -57,7 +58,7 @@ const queryClient = new QueryClient();
 
 export function Strategy() {
   const { client, walletClient } = useTurnkey()
-  const { onRequest, messages, isPending, isError } = useSendMessage()
+  const { onRequest, messages, isPending } = useSendMessage()
   const listRef = useRef<GetRef<typeof Bubble.List>>(null);
   const [selectedStrategy, setSelectedStrategy] = useState<{
     strategyId: string
@@ -73,6 +74,8 @@ export function Strategy() {
     signer?.signerAddress,
     CONFIG.CONTRACT_ADDRESSES.Aggregator
   )
+  const { state } = useWallets()
+  const { selectedAccount } = state
   
   useEffect(() => {
     const lastMessage = messages[messages.length - 1]
@@ -142,7 +145,7 @@ export function Strategy() {
       setAmount(0)
       setSelectedStrategy(null)
     } catch (error) {
-      console.error("error", error)
+      console.error("investInStrategy", error)
       toast.error("Oops! Failed to invest in strategy, please try again.")
     } finally {
       setIsProcessing(false)
@@ -150,7 +153,9 @@ export function Strategy() {
   }
 
   const handleSendMessage = async (prompt: string) => {
-    await onRequest(prompt)
+    const address = selectedAccount?.address as `0x${string}`
+    if (!address) return toast.error("Failed to get user address, please try again.")
+    await onRequest({ userInput: prompt, userAddress: address })
   }
 
   return (
@@ -235,7 +240,7 @@ export function Strategy() {
                                     <Button
                                       variant="default"
                                       onClick={() => handleInvestInStrategy(selectedStrategy.strategyId, selectedStrategy.token)}
-                                      disabled={isPending || isError || amount <= 0 || amount > (balance ? Number(formatEther(balance)) : 0) || isSomethingLoading}
+                                      disabled={isPending || amount <= 0 || amount > (balance ? Number(formatEther(balance)) : 0) || isSomethingLoading}
                                       className="bg-[#6E54FF]"
                                     >
                                       {isProcessing ? (
@@ -255,6 +260,11 @@ export function Strategy() {
                               style={{ paddingTop: "16px" }}
                               title="✨ Choose a Strategy"
                               items={items}
+                              styles={{
+                                itemContent: {
+                                  maxWidth: "180px"
+                                }
+                              }}
                               onItemClick={(info) => {
                                 const strategy = message?.strategies?.find(strategy => strategy?.strategyID === Number(info.data.key))
                                 if (!isTheLastMessage) return toast.warning("Oops! This message is outdated, please select a new strategy.")
@@ -284,7 +294,7 @@ export function Strategy() {
                 </>
               )}
             </div>
-            <SenderComponent disabled={isPending || isError} onSubmit={handleSendMessage} />
+            <SenderComponent disabled={isPending} onSubmit={handleSendMessage} />
           </App>
         </ConfigProvider>
       </CardContent>

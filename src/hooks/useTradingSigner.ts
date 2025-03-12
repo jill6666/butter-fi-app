@@ -29,7 +29,6 @@ export const useTradingSigner = () => {
     enabled: !!client && !!walletClient && !!user?.organization?.organizationId,
     retry: 3
   });
-  console.log("error", {error, isError})
 
   return { data, isLoading, refetch };
 };
@@ -49,9 +48,8 @@ const getSigner = async (
   })).connect(provider)
   const signerAddress = (await turnkeySigner.getAddress()) as `0x${string}`
 
-  console.log("signer", {turnkeySigner, signerAddress})
   return {
     turnkeySigner,
-    signerAddress, // 0x95a3421DA167B4c2BaE95eEc02661c705efbbFf4
+    signerAddress
   }
 };
