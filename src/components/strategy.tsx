@@ -8,29 +8,22 @@ import { BotIcon } from "lucide-react"
 import CONFIG from "@/config/protocol";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner"
-import getPrivateKeysForTag from "@/lib/turnkey/getPrivateKeysForTag"
 import { useTurnkey } from "@turnkey/sdk-react"
-import { TurnkeySigner } from "@turnkey/ethers";
-import { useUser } from "@/hooks/useUser";
-import { ethers } from "ethers";
 import WelcomeComponent from "@/components/chat/Welcome"
 import WelcomePrompt from "@/components/chat/Prompt"
 import SenderComponent from "@/components/chat/Sender"
 import { UserOutlined } from "@ant-design/icons";
-import { App, ConfigProvider, theme, Space, Spin, Input } from "antd";
-import { useEffect, useRef, useState } from "react";
+import { App, ConfigProvider, theme, Space, Input } from "antd";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { useSendMessage, Role } from "@/hooks/useSendMessage"
 import { Bubble, Prompts } from '@ant-design/x';
 import type { GetProp, GetRef } from 'antd';
 import { ArrowLeftIcon } from "lucide-react";
-import { useWallets } from "@/providers/WalletProvider"
-import { formatEther } from "viem"
+import { formatEther, parseUnits } from "viem"
 import { Loader } from "lucide-react"
+import { useBalanceOf } from "@/hooks/useBalanceOf";
+import { useTradingSigner } from "@/hooks/useTradingSigner";
 
-const MONAD_ENV = {
-  chainId: 10143,
-  name: "monad testnet",
-}
 const roles: GetProp<typeof Bubble.List, 'roles'> = {
   [Role.ASSISTANT]: {
     placement: 'start',
@@ -58,14 +51,10 @@ const roles: GetProp<typeof Bubble.List, 'roles'> = {
   },
 }
 
-const provider = new ethers.JsonRpcProvider("https://monad-testnet.drpc.org", MONAD_ENV);
 const queryClient = new QueryClient();
 
 export function Strategy() {
   const { client, walletClient } = useTurnkey()
-  const { user } = useUser()
-  const { state } = useWallets()
-  const { selectedAccount } = state
   const { onRequest, messages, isPending, isError } = useSendMessage()
   const listRef = useRef<GetRef<typeof Bubble.List>>(null);
   const [selectedStrategy, setSelectedStrategy] = useState<{
@@ -75,7 +64,8 @@ export function Strategy() {
     description: string
   } | null>(null)
   const [amount, setAmount] = useState(0)
-  const [isLoading, setIsLoading] = useState(false)
+  const [isProcessing, setIsProcessing] = useState(false)
+  const { data: signer, isLoading: isLoadingSigner } = useTradingSigner()
   
   useEffect(() => {
     const lastMessage = messages[messages.length - 1]
@@ -84,26 +74,27 @@ export function Strategy() {
     }
   }, [messages])
 
+  const { balance, isLoadingBalance, refetchBalance } = useBalanceOf(
+    selectedStrategy?.token,
+    signer?.signerAddress
+  )
+
+  const isSomethingLoading = useMemo(() => {
+    return isLoadingSigner || isLoadingBalance
+  }, [
+    isLoadingSigner,
+    isLoadingBalance
+  ])
+
   const handleInvestInStrategy = async (strategyId: string, token: `0x${string}`) => {
-    // FIXME: cannot get client from useTurnkey QQ
     if (!client) return toast.error("Failed to get client, please try again.")
-    if (!walletClient || !user?.organization?.organizationId || !strategyId || !token) return
-    const organizationId = user?.organization?.organizationId;
-    
+    if (!walletClient || !signer || !strategyId || !token) return
+      
     try {
-      setIsLoading(true)
-      const privateKeys = await getPrivateKeysForTag(client, "trading", organizationId)
-      if (!privateKeys.length) throw new Error("Failed to get private key, please try again.")
-        
-      const privateKeyId = privateKeys[0].privateKeyId
-      const turnkeySigner = (new TurnkeySigner({
-        client,
-        organizationId,
-        signWith: privateKeyId
-      })).connect(provider)
-      const userAddress = selectedAccount?.address; // TODO: should I send userAddress or signerAddress?
-      const signerAddress = (await turnkeySigner.getAddress()) as `0x${string}`
-      const amount = BigInt(10**18)
+      setIsProcessing(true)
+      const turnkeySigner = signer?.turnkeySigner
+      const signerAddress = signer?.signerAddress
+      const _amount = parseUnits(amount.toString(), 18)
 
       const hash = await investInStrategy({
         aggregatorAddress: CONFIG.CONTRACT_ADDRESSES.Aggregator,
@@ -111,21 +102,25 @@ export function Strategy() {
           user: signerAddress,
           strategyId: Number(strategyId),
           token,
-          amount
+          amount: _amount
         },
         connectedSigner: turnkeySigner,
       })
+
       const txnUrl = `${CONFIG.EXPLORER_URL}/tx/${hash}`
       toast.success(
         <>
           Transaction successful: <a href={txnUrl} target="_blank" rel="noopener noreferrer">{txnUrl}</a>
         </>
       )
+      refetchBalance()
+      setAmount(0)
+      setSelectedStrategy(null)
     } catch (error) {
-      console.log("error", error)
-      toast.error("Failed to invest in strategy, please try again.")
+      console.error("error", error)
+      toast.error("Oops! Failed to invest in strategy, please try again.")
     } finally {
-      setIsLoading(false)
+      setIsProcessing(false)
     }
   }
 
@@ -185,42 +180,50 @@ export function Strategy() {
                                 </Button>
                                 <p className="font-bold">{selectedStrategy.label}</p>
                               </div>
-                              <div className="p-2 border border-white/10 rounded">
-                              <p>{selectedStrategy.description}</p>
-                              <div className="flex flex-col gap-4">
-                                <div className="w-full flex flex-col gap-1">
-                                <div className="text-sm w-full flex items-center gap-2 justify-between text-white/60">
-                                  Balance: {selectedAccount?.balance ? formatEther(selectedAccount?.balance) : "0"} MON
-                                  <Button
-                                    variant="default"
-                                    size="icon"
-                                    onClick={() => setAmount(Number(selectedAccount?.balance ? formatEther(selectedAccount?.balance) : "0"))}
-                                  >
-                                    Max
-                                  </Button>
+                              {isSomethingLoading ? (
+                                <div className="flex items-center justify-center pb-4">
+                                  <Loader className="h-4 w-4 animate-spin" />
                                 </div>
-                                <Input
-                                  type="number"
-                                  value={amount}
-                                  style={{ background: "transparent", height: "40px" }}
-                                  onChange={(e) => setAmount(Number(e.target.value))}
-                                />
-                                </div>
-                                <Button
-                                  variant="default"
-                                  onClick={() => handleInvestInStrategy(selectedStrategy.strategyId, selectedStrategy.token)}
-                                  disabled={isPending || isError || amount <= 0 || amount > (selectedAccount?.balance ? Number(formatEther(selectedAccount?.balance)) : 0)}
-                                  className="bg-[#6E54FF]"
-                                >
-                                  {isLoading ? (
-                                    <>
-                                      <Loader className="h-4 w-4 animate-spin" />
-                                      <span className="ml-2">Loading...</span>
-                                    </>
-                                  ) : "Confirm"}
-                                </Button>
-                              </div>
-                              </div>
+                              ) : (
+                                <>
+                                  <div className="py-2 px-4 border border-white/10 rounded">
+                                    <p>{selectedStrategy.description}</p>
+                                    <div className="flex flex-col gap-4">
+                                      <div className="w-full flex flex-col gap-1">
+                                        <div className="text-sm w-full flex items-center gap-2 justify-between text-white/60">
+                                          Balance: {isLoadingBalance? "loading..." : balance ? formatEther(balance) : "-"} WMOD
+                                      <Button
+                                        variant="default"
+                                        size="icon"
+                                        onClick={() => setAmount(Number(balance ? formatEther(balance) : "0"))}
+                                      >
+                                        Max
+                                      </Button>
+                                    </div>
+                                    <Input
+                                      type="number"
+                                      value={amount}
+                                      style={{ background: "transparent", height: "40px" }}
+                                      onChange={(e) => setAmount(Number(e.target.value))}
+                                    />
+                                    </div>
+                                    <Button
+                                      variant="default"
+                                      onClick={() => handleInvestInStrategy(selectedStrategy.strategyId, selectedStrategy.token)}
+                                      disabled={isPending || isError || amount <= 0 || amount > (balance ? Number(formatEther(balance)) : 0) || isSomethingLoading}
+                                      className="bg-[#6E54FF]"
+                                    >
+                                      {isProcessing ? (
+                                        <>
+                                          <Loader className="h-4 w-4 animate-spin" />
+                                          <span className="ml-2">Loading...</span>
+                                        </>
+                                      ) : "Confirm"}
+                                    </Button>
+                                  </div>
+                                  </div>
+                                </>
+                              )}
                             </div>
                           ) : (  
                             <Prompts

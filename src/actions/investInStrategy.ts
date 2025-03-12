@@ -1,5 +1,6 @@
 import { aggregatorAbi } from "@/lib/abis";
 import { TurnkeySigner } from "@turnkey/ethers";
+import { ethers } from "ethers";
 
 export const investInStrategy = async ({
   aggregatorAddress,
@@ -21,23 +22,38 @@ export const investInStrategy = async ({
   if (!address || !provider) {
     throw new Error("Cannot execute a trade without a connected wallet");
   }
+  console.log("investInStrategy === ", {
+    user: params.user,
+    strategyId: params.strategyId,
+    token: params.token,
+    amount: params.amount
+  })
+
+  // Encode the function call data
+  const iface = new ethers.Interface(aggregatorAbi);
+  const data = iface.encodeFunctionData("investInStrategy", [
+    params.user,
+    params.strategyId,
+    params.token,
+    params.amount
+  ]);
 
   // TODO: implement the transaction and setup policies
   const tx = {
-    data: "0x0000000",
+    data,
     to: aggregatorAddress,
-    value: "1000",
+    value: 0,
     from: address,
-    maxFeePerGas: BigInt(21000),
-    maxPriorityFeePerGas: BigInt(21000),
+    maxFeePerGas: ethers.parseUnits("50", "gwei"),
+    maxPriorityFeePerGas: ethers.parseUnits("2", "gwei"),
   };
 
-  const swapTx = await connectedSigner.sendTransaction(tx);
+  const investTx = await connectedSigner.sendTransaction(tx);
   
-  console.log("Awaiting confirmation for swap tx...\n");
+  console.log("Awaiting confirmation for invest tx...\n");
 
   const result = await connectedSigner.provider!.waitForTransaction(
-    swapTx.hash,
+    investTx.hash,
     1,
   );
   console.log("Swap tx confirmed: ", result);
