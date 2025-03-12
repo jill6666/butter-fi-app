@@ -21,3 +21,7 @@ export const getRpId = (url: string) => {
     return null
   }
 }
+
+export function paddedAddress(address: string) {
+  return address.toLowerCase().substring(2).padStart(64, "0");
+}

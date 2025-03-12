@@ -2,7 +2,7 @@
 
 import { Alchemy, AssetTransfersCategory, Network } from "alchemy-sdk"
 import { Address, getAddress, parseEther, parseAbiItem } from "viem"
-import { getBalance as wagmiGetBalance, getPublicClient, getBlock } from '@wagmi/core'
+import { getBalance as wagmiGetBalance, getPublicClient } from '@wagmi/core'
 import { wagmiConfig } from "@/config/wagmi"
 import { getLogs } from 'viem/actions'
 

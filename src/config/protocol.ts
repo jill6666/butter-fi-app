@@ -10,6 +10,15 @@ export const CONFIG = {
         HappyStakeAdapter: "0x4a7A418E5AA6a974602e61B62444D68cf4212102" as `0x${string}`,
         EasyStakeAdapter: "0xeB85FE4e3df41bafeb480BE14cCFC9F1fdd81787" as `0x${string}`,
         CakeStakeAdapter: "0x267912C677b2e51362aE97e024eBD4f41d920180" as `0x${string}`,
+        WMOD: "0x026BA669dA22b19A0332a735CD924D5ec4D3a99E" as `0x${string}`,
+        sWMOD: "0x4fb8181903E9D0034bbA4B1Dca3a282335E84978" as `0x${string}`,
+    },
+    SELECTORS: {
+      TRANSFER_SELECTOR: "0xa9059cbb",
+      INVEST_SELECTOR: "0xde8100c2", // investInStrategy
+      WITHDRAW_SELECTOR: "0x2260fac5", // TODO: get withdrawFromStrategy selector
+      APPROVE_SELECTOR: "0x095ea7b3",
+      CLAIM_REWARDS_SELECTOR: "0x92909591", // TODO: get claimRewards selector
     },
     TOKEN_LIST: [
         {

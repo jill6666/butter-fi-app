@@ -6,12 +6,13 @@ const baseUrl = process.env.NODE_ENV === "development" ? "http://localhost:3000"
     : `https://${process.env.NEXT_PUBLIC_VERCEL_BRANCH_URL}`
 
 export const siteConfig: SiteConfig = {
-  name: "Demo Embedded Wallet",
-  author: "turnkey",
+  name: "Butter Finance",
+  author: "Butter Finance",
   description:
-    "A comprehensive demo showcasing how to build an embedded wallet using Turnkey.",
+    "AI trading assistant for monad with best security solution powered by turnkey.",
   keywords: [
-    "Turnkey",
+    "Butter-Finance",
+    "AI trading assistant",
     "Web3",
     "Next.js",
     "React",
@@ -21,10 +22,10 @@ export const siteConfig: SiteConfig = {
   ],
   url: {
     base: baseUrl,
-    author: "https://turnkey.io",
+    author: "https://butter-finance.com",
   },
   links: {
-    github: "https://github.com/tkhq/demo-embedded-wallet",
+    github: "https://github.com/jill6666/butter-fi-app",
   },
   ogImage: `${baseUrl}/og.jpg`,
 }
