@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useTurnkey } from "@turnkey/sdk-react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
+import { Loader } from "lucide-react"
 import * as z from "zod"
 
 import { Email } from "@/types/turnkey"
@@ -159,7 +160,11 @@ function AuthContent() {
 
 export default function Auth() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={
+      <div className="flex w-full h-full">
+        <Loader className="h-4 w-4 animate-spin m-auto" />
+      </div>
+    }>
       <AuthContent />
     </Suspense>
   )

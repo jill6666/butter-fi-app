@@ -64,7 +64,11 @@ function EmailAuthContent() {
 
 export default function EmailAuth() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={
+      <div className="flex w-full h-full">
+        <Loader className="h-4 w-4 animate-spin m-auto" />
+      </div>
+    }>
       <EmailAuthContent />
     </Suspense>
   )
