@@ -14,7 +14,7 @@ const items: PromptsProps['items'] = [
     key: '3',
     icon: <RocketOutlined style={{ color: '#722ED1' }} />,
     label: 'Saving Time on Research',
-    description: 'Suggest 3 strategies with at least 7% APR',
+    description: 'Suggest 3 strategies with at least 5% APR',
   },
   {
     key: '2',
