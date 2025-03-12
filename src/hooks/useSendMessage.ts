@@ -16,6 +16,8 @@ type TMessage = {
   strategies?: {
     strategyID: number
     stakeToken: `0x${string}`
+    label: string
+    description: string
   }[],
   loading?: boolean
 }
@@ -94,11 +96,15 @@ const executeTypeMockData = {
   strategies: [
     {
       strategyID: 1,
-      stakeToken: "0x026BA669dA22b19A0332a735CD924D5ec4D3a99E" as `0x${string}`
+      stakeToken: "0x026BA669dA22b19A0332a735CD924D5ec4D3a99E" as `0x${string}`,
+      label: "ether.fi",
+      description: "A non-custodial staking service."
     },
     {
       strategyID: 2,
-      stakeToken: "0x026BA669dA22b19A0332a735CD924D5ec4D3a99E" as `0x${string}`
+      stakeToken: "0x026BA669dA22b19A0332a735CD924D5ec4D3a99E" as `0x${string}`,
+      label: "Ethena",
+      description: "A stable LSD protocol for Ethereum collateral."
     },
   ]
 }
@@ -117,7 +123,7 @@ async function getMessage({
   // }
   
   // mock response and loading
-  await new Promise(resolve => setTimeout(resolve, 2000));
+  await new Promise(resolve => setTimeout(resolve, 1500));
 
   // mock response
   return userInput.includes("strategies") ? executeTypeMockData : userInput.toLocaleLowerCase().includes("why") ? prompt1Response : userInput.toLocaleLowerCase().includes("what") ? prompt2Response : defaultMockData
