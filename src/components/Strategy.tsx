@@ -107,6 +107,10 @@ export function Strategy() {
       
     try {
       setIsProcessing(true)
+      console.log("get signer", {
+        signerAddress: signer?.signerAddress,
+        
+      })
       const turnkeySigner = signer?.turnkeySigner
       const signerAddress = signer?.signerAddress
       const _amount = parseUnits(amount.toString(), 18)

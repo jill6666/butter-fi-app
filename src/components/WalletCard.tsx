@@ -17,16 +17,21 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { useTradingSigner } from "@/hooks/useTradingSigner"
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const queryClient = new QueryClient();
 
 // import ExportWalletDialog from "./export-wallet"
 // import ImportWalletDialog from "./import-wallet"
 // import TransferDialog from "./transfer-dialog"
 import { Skeleton } from "./ui/skeleton"
 
-export default function WalletCard() {
+function WalletCard() {
   const { ethPrice } = useTokenPrice()
   const { state } = useWallets()
   const { selectedWallet, selectedAccount } = state
+  const { data, isLoading} = useTradingSigner()
   const [usdAmount, setUsdAmount] = useState<number | undefined>(undefined)
 
   const handleFundWallet = async () => {
@@ -34,9 +39,9 @@ export default function WalletCard() {
     await fundWallet(selectedAccount?.address)
   }
 
-  const handleCopyAddress = () => {
-    if (selectedAccount?.address) {
-      navigator.clipboard.writeText(selectedAccount.address)
+  const handleCopyAddress = (address: `0x${string}`) => {
+    if (address) {
+      navigator.clipboard.writeText(address)
       toast.success("Address copied to clipboard")
     }
   }
@@ -59,23 +64,41 @@ export default function WalletCard() {
           {selectedWallet?.walletName || (
             <Skeleton className="h-4 w-20 bg-muted-foreground/50" />
           )}
-        <div className="text-sm">
-          {selectedAccount?.address ? (
-            <div
-              onClick={handleCopyAddress}
-              className="flex w-min cursor-pointer items-center gap-2"
-            >
-              {truncateAddress(selectedAccount?.address)}
-              <CopyIcon className="h-3 w-3" />
-            </div>
-          ) : (
-            <Skeleton className="h-3 w-32  rounded-sm bg-muted-foreground/50" />
-          )}
-        </div>
+          <div className="text-sm">
+            {selectedAccount?.address ? (
+              <div
+                onClick={() => selectedAccount?.address && handleCopyAddress(selectedAccount?.address)}
+                className="flex w-min cursor-pointer items-center gap-2"
+              >
+                {truncateAddress(selectedAccount?.address)}
+                <CopyIcon className="h-3 w-3" />
+              </div>
+            ) : (
+              <Skeleton className="h-3 w-32  rounded-sm bg-muted-foreground/50" />
+            )}
+          </div>
         </CardTitle>
       </CardHeader>
-      <CardContent className="">
+      <CardContent className="mt-4">
+        <div className="text-sm w-full flex justify-between items-center font-medium">
+          My Trading Wallet
+          <div
+            onClick={() => data?.signerAddress && handleCopyAddress(data?.signerAddress)}
+            className="flex w-min cursor-pointer items-center gap-2"
+          >
+            {data?.signerAddress ? truncateAddress(data?.signerAddress) : "-"}
+            <CopyIcon className="h-3 w-3" />
+          </div>
+        </div>
       </CardContent>
     </Card>
+  )
+}
+
+export default function WalletCardWrapper() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <WalletCard />
+    </QueryClientProvider>
   )
 }

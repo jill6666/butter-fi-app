@@ -39,8 +39,12 @@ const getSigner = async (
   
   const privateKeys = await getPrivateKeysForTag(client, "trading", organizationId)
   if (!privateKeys.length) throw new Error("Failed to get private key, please try again.")
-    
+
   const privateKeyId = privateKeys[0].privateKeyId
+  console.log("get trading wallet signer === ", {
+    privateKeyName: privateKeys[0].privateKeyName,
+    privateKeyId,
+  })
   const turnkeySigner = (new TurnkeySigner({
     client,
     organizationId,
@@ -48,6 +52,7 @@ const getSigner = async (
   })).connect(provider)
   const signerAddress = (await turnkeySigner.getAddress()) as `0x${string}`
 
+  console.log("signer address === ", signerAddress)
   return {
     turnkeySigner,
     signerAddress

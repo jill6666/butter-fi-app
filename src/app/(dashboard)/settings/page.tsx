@@ -9,20 +9,33 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Passkeys } from "@/components/Passkeys"
 import { useTurnkey } from "@turnkey/sdk-react"
 import { toast } from "sonner"
+import { useAuth } from "@/providers/AuthProvider"
+import { useTradingSigner } from "@/hooks/useTradingSigner"
 
 export default function Settings() {
   const router = useRouter()
   const { user } = useUser()
   const { client } = useTurnkey()
+  const { logout } = useAuth()
+  const { data, isLoading} = useTradingSigner()
 
   const handleDeleteAccount = async () => {
     try {
+      if (!client) return toast.error("Fail to get client")
       if (!user?.organization?.organizationId) return
       const organizationId = user?.organization?.organizationId || "";
+      console.log("delete account", {
+        organizationId,
+        userId: user?.userId,
+        userName: user?.username,
+        email: user?.email,
+        client
+      })
       await client?.deleteSubOrganization({
         organizationId,
         deleteWithoutExport: true
       })
+      await logout()
       toast("Account deleted successfully")
     } catch (error) {
       console.error("Error deleting sub organization", error)

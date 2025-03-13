@@ -1,6 +1,6 @@
 "use client"
 
-import { HandCoins } from "lucide-react"
+import { HandCoins, Loader } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -24,6 +24,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { toast } from "sonner"
 
 const queryClient = new QueryClient();
 
@@ -36,20 +37,31 @@ function UserTagCard() {
   const { userTags, isLoadingUserTags } = useGetUserTags({
     organizationId: user?.organization?.organizationId || ""
   })
+  const [isProcessing, setIsProcessing] = useState(false)
 
   const handleSetupTrader = async () => {
-    if (!user || !user.organization?.organizationId) return
-    if (!client) throw new Error("Failed to get client")
+    setIsProcessing(true)
 
-    const publicKey = await walletClient?.getPublicKey()
-    if (!publicKey) throw new Error("Failed to get public key")
+    try {
+      if (!user || !user.organization?.organizationId) return
+      if (!client) throw new Error("Failed to get client")
 
-    await setupAdminAndTrader({
-      organizationId: user.organization.organizationId,
-      userId: user.userId,
-      publicKey,
-      subOrgClient: client!
-    })
+      const publicKey = await walletClient?.getPublicKey()
+      if (!publicKey) throw new Error("Failed to get public key")
+
+      await setupAdminAndTrader({
+        organizationId: user.organization.organizationId,
+        userId: user.userId,
+        publicKey,
+        subOrgClient: client!
+      })
+      toast.success("You're all set!")
+    } catch (error) {
+      console.error("set up error, ", error)
+      toast.error("Failed to setup trader and policies")
+    } finally {
+      setIsProcessing(false)
+    }
   }
   const handleGetSubOrgUserList = async () => {
     if (!user || !user.organization?.organizationId) return
@@ -83,6 +95,14 @@ function UserTagCard() {
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
         <CardTitle className=" font-medium">
           Users
+          <Button onClick={handleSetupTrader}>
+          {isProcessing ? (
+            <>
+              <Loader className="h-4 w-4 animate-spin" />
+              <span className="ml-2">Loading...</span>
+            </>
+          ) : "Setup Trader and Policies"}
+          </Button>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-1">

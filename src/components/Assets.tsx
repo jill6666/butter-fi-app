@@ -15,13 +15,34 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { useBalance } from "@/hooks/useBalance"
+import { useTradingSigner } from "@/hooks/useTradingSigner"
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useBalanceOf } from "@/hooks/useBalanceOf"
+import { CONFIG } from "@/config/protocol";
 
 import { Icons } from "./Icons"
 
-export default function Assets() {
+const queryClient = new QueryClient();
+
+function Assets() {
   const { state } = useWallets()
   const { ethPrice } = useTokenPrice()
   const { selectedAccount } = state
+  const { data: trader } = useTradingSigner()
+
+  const {
+    balance: wmodBalance,
+    isLoadingBalance: isLoadingBalanceWMOD,
+  } = useBalanceOf(CONFIG.CONTRACT_ADDRESSES.WMOD, trader?.signerAddress)
+  const {
+    balance: sWMODBalance,
+    isLoadingBalance: isLoadingBalancesWMOD,
+  } = useBalanceOf(CONFIG.CONTRACT_ADDRESSES.sWMOD, trader?.signerAddress)
+  const {
+    data: nativeTokenBalance,
+    isLoading: isLoadingBalanceNative,
+  } = useBalance(trader?.signerAddress)
 
   // Memoize the balance calculation
   const amount = useMemo(() => {
@@ -85,9 +106,98 @@ export default function Assets() {
                 </div>
               </TableCell>
             </TableRow>
+            <TableRow>
+              <TableCell className="p-2 font-medium sm:p-4">
+                <div className="flex items-center space-x-2 text-xs sm:text-sm">
+                  <Icons.monad className="h-6 w-6" />
+                  <span>MON</span>
+                </div>
+              </TableCell>
+              <TableCell className="hidden font-mono text-xs sm:table-cell">
+                {trader?.signerAddress &&
+                  truncateAddress(trader?.signerAddress)}
+              </TableCell>
+              <TableCell className="hidden sm:table-cell">{formatEther(nativeTokenBalance || BigInt(0))}</TableCell>
+              <TableCell className="hidden sm:table-cell">
+                ${valueInUSD}
+              </TableCell>
+              <TableCell className="p-2 sm:hidden">
+                <div className="font-medium">
+                  {formatEther(nativeTokenBalance || BigInt(0))}
+                  <span className="ml-1 text-xs text-muted-foreground">
+                    MON
+                  </span>
+                </div>
+                <div className=" text-sm text-muted-foreground">
+                  ${valueInUSD}
+                </div>
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell className="p-2 font-medium sm:p-4">
+                <div className="flex items-center space-x-2 text-xs sm:text-sm">
+                  <div className="h-6 w-6 bg-white/60 rounded-full" />
+                  <span>WMOD</span>
+                </div>
+              </TableCell>
+              <TableCell className="hidden font-mono text-xs sm:table-cell">
+                {trader?.signerAddress &&
+                  truncateAddress(trader?.signerAddress)}
+              </TableCell>
+              <TableCell className="hidden sm:table-cell">{formatEther(wmodBalance || BigInt(0))}</TableCell>
+              <TableCell className="hidden sm:table-cell">
+                ${valueInUSD}
+              </TableCell>
+              <TableCell className="p-2 sm:hidden">
+                <div className="font-medium">
+                  {formatEther(wmodBalance || BigInt(0))}
+                  <span className="ml-1 text-xs text-muted-foreground">
+                    WMOD
+                  </span>
+                </div>
+                <div className=" text-sm text-muted-foreground">
+                  ${valueInUSD}
+                </div>
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell className="p-2 font-medium sm:p-4">
+                <div className="flex items-center space-x-2 text-xs sm:text-sm">
+                  <div className="h-6 w-6 bg-white/60 rounded-full" />
+                  <span>sWMOD</span>
+                </div>
+              </TableCell>
+              <TableCell className="hidden font-mono text-xs sm:table-cell">
+                {trader?.signerAddress &&
+                  truncateAddress(trader?.signerAddress)}
+              </TableCell>
+              <TableCell className="hidden sm:table-cell">{formatEther(sWMODBalance || BigInt(0))}</TableCell>
+              <TableCell className="hidden sm:table-cell">
+                ${valueInUSD}
+              </TableCell>
+              <TableCell className="p-2 sm:hidden">
+                <div className="font-medium">
+                  {formatEther(sWMODBalance || BigInt(0))}
+                  <span className="ml-1 text-xs text-muted-foreground">
+                    sWMOD
+                  </span>
+                </div>
+                <div className=" text-sm text-muted-foreground">
+                  ${valueInUSD}
+                </div>
+              </TableCell>
+            </TableRow>
           </TableBody>
         </Table>
       </CardContent>
     </Card>
+  )
+}
+
+export default function AssetWrapper() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <Assets />
+    </QueryClientProvider>
   )
 }
