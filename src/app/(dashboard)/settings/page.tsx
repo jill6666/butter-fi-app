@@ -10,14 +10,12 @@ import { Passkeys } from "@/components/Passkeys"
 import { useTurnkey } from "@turnkey/sdk-react"
 import { toast } from "sonner"
 import { useAuth } from "@/providers/AuthProvider"
-import { useTradingSigner } from "@/hooks/useTradingSigner"
 
 export default function Settings() {
   const router = useRouter()
   const { user } = useUser()
   const { client } = useTurnkey()
   const { logout } = useAuth()
-  const { data, isLoading} = useTradingSigner()
 
   const handleDeleteAccount = async () => {
     try {
