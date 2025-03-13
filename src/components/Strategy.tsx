@@ -3,6 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 import { investInStrategy } from "@/actions/investInStrategy"
+import { withdrawFromStrategy } from "@/actions/withdrawFromStrategy"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BotIcon } from "lucide-react"
 import CONFIG from "@/config/protocol";
@@ -58,7 +59,7 @@ const queryClient = new QueryClient();
 
 export function Strategy() {
   const { client, walletClient } = useTurnkey()
-  const { onRequest, messages, isPending } = useSendMessage()
+  const { onRequest, messages, isPending, addSystemMessage } = useSendMessage()
   const listRef = useRef<GetRef<typeof Bubble.List>>(null);
   const [selectedStrategy, setSelectedStrategy] = useState<{
     strategyId: string
@@ -69,6 +70,8 @@ export function Strategy() {
   const [amount, setAmount] = useState(0)
   const [isProcessing, setIsProcessing] = useState(false)
   const { data: signer, isLoading: isLoadingSigner } = useTradingSigner()
+  const [transactionType, setTransactionType] = useState<"EXECUTE_TRANSACTION" | "WITHDRAW_POSITION" | null>(null);
+
   const { allowance, isLoadingAllowance } = useAllowance(
     selectedStrategy?.token,
     signer?.signerAddress,
@@ -76,11 +79,17 @@ export function Strategy() {
   )
   const { state } = useWallets()
   const { selectedAccount } = state
-  
+
   useEffect(() => {
-    const lastMessage = messages[messages.length - 1]
-    if (!lastMessage?.strategies?.length) {
-      setSelectedStrategy(null)
+    const lastMessage = messages[messages.length - 1];
+    console.log("****lastMessage type: ", lastMessage?.type)
+    if (lastMessage?.type === "PURE_STRING_RESPONSE") {
+      setSelectedStrategy(null);
+      setTransactionType(null);
+    } else if (lastMessage?.type === "EXECUTE_TRANSACTION") {
+      setTransactionType("EXECUTE_TRANSACTION");
+    } else if (lastMessage?.type === "WITHDRAW_POSITION") {
+      setTransactionType("WITHDRAW_POSITION");
     }
   }, [messages])
 
@@ -104,7 +113,7 @@ export function Strategy() {
   const handleInvestInStrategy = async (strategyId: string, token: `0x${string}`) => {
     if (!client) return toast.error("Failed to get client, please try again.")
     if (!walletClient || !signer || !strategyId || !token || !selectedAccount?.address) return
-      
+
     try {
       setIsProcessing(true)
       console.log("get signer and user", {
@@ -145,16 +154,68 @@ export function Strategy() {
           Transaction successful: <a href={txnUrl} target="_blank" rel="noopener noreferrer">{txnUrl}</a>
         </>
       )
+      addSystemMessage(`✅ Transaction successful! View transaction: ${txnUrl}`)
+
       refetchBalance()
       setAmount(0)
       setSelectedStrategy(null)
     } catch (error) {
       console.error("investInStrategy", error)
       toast.error("Oops! Failed to invest in strategy, please try again.")
+      addSystemMessage("❌ Oops! Failed to invest in strategy, please try again.")
     } finally {
       setIsProcessing(false)
     }
   }
+
+  const handleWithdrawPosition = async (strategyId: string) => {
+    if (!client) return toast.error("Failed to get client, please try again.");
+    if (!walletClient || !signer || !selectedAccount?.address) return;
+
+    try {
+      setIsProcessing(true);
+      console.log("get signer and user", {
+        signerAddress: signer?.signerAddress,
+        user: selectedAccount?.address,
+      });
+
+      const turnkeySigner = signer?.turnkeySigner;
+      const signerAddress = signer?.signerAddress;
+      const _amount = parseUnits(amount.toString(), 18)
+
+      const hash = await withdrawFromStrategy({
+        aggregatorAddress: CONFIG.CONTRACT_ADDRESSES.Aggregator,
+        params: {
+          user: selectedAccount?.address,
+          strategyId: Number(strategyId),
+          amount: _amount
+        },
+        connectedSigner: turnkeySigner,
+      });
+
+      const txnUrl = `${CONFIG.EXPLORER_URL}/tx/${hash}`;
+      toast.success(
+        <>
+          Withdrawal successful:{" "}
+          <a href={txnUrl} target="_blank" rel="noopener noreferrer">
+            {txnUrl}
+          </a>
+        </>
+      );
+      addSystemMessage(`✅ Withdrawal successful! View transaction: ${txnUrl}`)
+
+      refetchBalance();
+      setAmount(0);
+      setSelectedStrategy(null);
+    } catch (error) {
+      console.error("withdrawFromStrategy", error);
+      toast.error("Oops! Failed to withdraw, please try again.");
+      addSystemMessage("❌ Oops! Failed to withdraw, please try again.");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
 
   const handleSendMessage = async (prompt: string) => {
     const address = selectedAccount?.address as `0x${string}`
@@ -226,41 +287,58 @@ export function Strategy() {
                                     <div className="flex flex-col gap-4">
                                       <div className="w-full flex flex-col gap-1">
                                         <div className="text-sm w-full flex items-center gap-2 justify-between text-white/60">
-                                          Balance: {isLoadingBalance? "loading..." : balance ? formatEther(balance) : "-"} WMOD
+                                          Balance: {isLoadingBalance ? "loading..." : balance ? formatEther(balance) : "-"} WMOD
+                                          <Button
+                                            variant="default"
+                                            size="icon"
+                                            onClick={() => setAmount(Number(balance ? formatEther(balance) : "0"))}
+                                          >
+                                            Max
+                                          </Button>
+                                        </div>
+                                        <Input
+                                          type="number"
+                                          value={amount}
+                                          style={{ background: "transparent", height: "40px" }}
+                                          onChange={(e) => setAmount(Number(e.target.value))}
+                                        />
+                                      </div>
                                       <Button
                                         variant="default"
-                                        size="icon"
-                                        onClick={() => setAmount(Number(balance ? formatEther(balance) : "0"))}
+                                        onClick={() => {
+                                            if (transactionType === "EXECUTE_TRANSACTION") {
+                                              console.log("***EXECUTE_TRANSACTION")
+                                              handleInvestInStrategy(selectedStrategy.strategyId, selectedStrategy.token);
+                                            } else if (transactionType === "WITHDRAW_POSITION") {
+                                              console.log("***WITHDRAW_POSITION")
+                                              handleWithdrawPosition(selectedStrategy.strategyId);
+                                            } else {
+                                              console.log("***elseeeeeee")
+                                              console.log("transactionType === ", transactionType)
+                                              toast.error("Oops! Something went wrong, please try again.");
+                                            }
+                                        }}
+                                          disabled={
+                                            isPending ||
+                                            amount <= 0 ||
+                                            isSomethingLoading ||
+                                            (transactionType === "EXECUTE_TRANSACTION" && amount > (balance ? Number(formatEther(balance)) : 0))
+                                          }
+                                        className="bg-[#6E54FF]"
                                       >
-                                        Max
+                                        {isProcessing ? (
+                                          <>
+                                            <Loader className="h-4 w-4 animate-spin" />
+                                            <span className="ml-2">Loading...</span>
+                                          </>
+                                        ) : "Confirm"}
                                       </Button>
                                     </div>
-                                    <Input
-                                      type="number"
-                                      value={amount}
-                                      style={{ background: "transparent", height: "40px" }}
-                                      onChange={(e) => setAmount(Number(e.target.value))}
-                                    />
-                                    </div>
-                                    <Button
-                                      variant="default"
-                                      onClick={() => handleInvestInStrategy(selectedStrategy.strategyId, selectedStrategy.token)}
-                                      disabled={isPending || amount <= 0 || amount > (balance ? Number(formatEther(balance)) : 0) || isSomethingLoading}
-                                      className="bg-[#6E54FF]"
-                                    >
-                                      {isProcessing ? (
-                                        <>
-                                          <Loader className="h-4 w-4 animate-spin" />
-                                          <span className="ml-2">Loading...</span>
-                                        </>
-                                      ) : "Confirm"}
-                                    </Button>
-                                  </div>
                                   </div>
                                 </>
                               )}
                             </div>
-                          ) : (  
+                          ) : (
                             <Prompts
                               style={{ paddingTop: "16px" }}
                               title="✨ Choose a Strategy"
@@ -279,9 +357,9 @@ export function Strategy() {
                                   token: strategy?.stakeToken as `0x${string}`,
                                   label: `${strategy?.label}`,
                                   description: `${strategy?.description}`
-                              })
-                            }}
-                          />
+                                })
+                              }}
+                            />
                           )}
                         </>
                       ) : message?.content

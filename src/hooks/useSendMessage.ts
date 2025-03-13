@@ -10,6 +10,7 @@ export enum Role {
 type TMessage = {
   role: Role.USER | Role.ASSISTANT
   content: string
+  type: string
   strategies?: {
     strategyID: number
     stakeToken: `0x${string}`
@@ -49,12 +50,21 @@ export const useSendMessage = () => {
     mutationKey: ["message"],
   });
 
+  const addSystemMessage = (content: string) => {
+    setMessages(prev => [...prev, {
+      role: Role.ASSISTANT,
+      content,
+      type: "PURE_STRING_RESPONSE"
+    }]);
+  };
+
   useEffect(() => {
     if (data) {
       setMessages(prev => {
         const lastMessage = prev[prev.length - 1];
         lastMessage.loading = false;
         lastMessage.content = data?.LLM_response;
+        lastMessage.type = data?.type;
         lastMessage.strategies = data?.strategies;
         return [...prev];
       });
@@ -79,5 +89,6 @@ export const useSendMessage = () => {
     isError,
     onRequest,
     messages,
+    addSystemMessage
   };
 };

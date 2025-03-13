@@ -7,6 +7,7 @@ const endpoint = process.env.NEXT_PUBLIC_API_URL;
 enum MessageType {
   EXECUTE_TRANSACTION = "EXECUTE_TRANSACTION",
   PURE_STRING_RESPONSE = "PURE_STRING_RESPONSE",
+  WITHDRAW_POSITION = "WITHDRAW_POSITION",
 }
 
 export const axiosInstance = axios.create({
