@@ -20,11 +20,13 @@ import {
 import { useTradingSigner } from "@/hooks/useTradingSigner"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
+import ExportWalletDialog from "./ExportWallet"
+
 const queryClient = new QueryClient();
 
-// import ExportWalletDialog from "./export-wallet"
 // import ImportWalletDialog from "./import-wallet"
 // import TransferDialog from "./transfer-dialog"
+
 import { Skeleton } from "./ui/skeleton"
 
 function WalletCard() {
@@ -60,15 +62,17 @@ function WalletCard() {
   return (
     <Card className="w-full">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-0">
-        <CardTitle className="w-full flex justify-between items-center font-medium">
-          {selectedWallet?.walletName || (
-            <Skeleton className="h-4 w-20 bg-muted-foreground/50" />
-          )}
-          <div className="text-sm">
+        <CardTitle className="w-full flex justify-between items-center">
+          <div className="flex justify-between items-center gap-4">
+            <span className="font-medium">
+              {selectedWallet?.walletName || (
+              <Skeleton className="h-4 w-20 bg-muted-foreground/50" />
+            )}
+            </span>
             {selectedAccount?.address ? (
               <div
                 onClick={() => selectedAccount?.address && handleCopyAddress(selectedAccount?.address)}
-                className="flex w-min cursor-pointer items-center gap-2"
+                className="flex w-min cursor-pointer items-center gap-2 mr-2 text-sm"
               >
                 {truncateAddress(selectedAccount?.address)}
                 <CopyIcon className="h-3 w-3" />
@@ -78,9 +82,14 @@ function WalletCard() {
             )}
           </div>
         </CardTitle>
+        <ExportWalletDialog>
+          <Button variant="outline" onClick={handleExportWallet}>
+            <Upload className="mr-2 h-4 w-4" /> Export
+          </Button>
+        </ExportWalletDialog>
       </CardHeader>
       <CardContent className="mt-4">
-        <div className="text-sm w-full flex justify-between items-center font-medium">
+        <div className="text-sm w-full flex gap-4 items-center font-medium">
           My Trading Wallet
           <div
             onClick={() => data?.signerAddress && handleCopyAddress(data?.signerAddress)}
