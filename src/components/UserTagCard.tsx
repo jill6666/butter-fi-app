@@ -13,7 +13,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useUser } from "@/hooks/useUser";
 import { useTurnkey } from "@turnkey/sdk-react";
 import { setupAdminAndTrader } from "@/lib/turnkey/setupTrader"
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { OrgUsers } from "@/types/turnkey";
 import { useGetUserTags } from "@/hooks/useGetUserTags";
 import {
@@ -25,13 +25,14 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { toast } from "sonner"
+import { generateP256KeyPair } from "@turnkey/crypto"
 
 const queryClient = new QueryClient();
 
 const tagMap = new Map<string, string>()
 
 function UserTagCard() {
-  const { client, walletClient } = useTurnkey()
+  const { client } = useTurnkey()
   const { user } = useUser()
   const [subOrgUserList, setSubOrgUserList] = useState<OrgUsers>([])
   const { userTags, isLoadingUserTags } = useGetUserTags({
@@ -46,8 +47,9 @@ function UserTagCard() {
       if (!user || !user.organization?.organizationId) return
       if (!client) throw new Error("Failed to get client")
 
-      const publicKey = await walletClient?.getPublicKey()
-      if (!publicKey) throw new Error("Failed to get public key")
+      // The key pair is an ephemeral key, it is used just once and then can be thrown away
+      const publicKey = generateP256KeyPair().publicKeyUncompressed
+      console.log("generateP256KeyPair... ",  {...generateP256KeyPair()})
 
       await setupAdminAndTrader({
         organizationId: user.organization.organizationId,
