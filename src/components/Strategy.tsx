@@ -103,13 +103,13 @@ export function Strategy() {
 
   const handleInvestInStrategy = async (strategyId: string, token: `0x${string}`) => {
     if (!client) return toast.error("Failed to get client, please try again.")
-    if (!walletClient || !signer || !strategyId || !token) return
+    if (!walletClient || !signer || !strategyId || !token || !selectedAccount?.address) return
       
     try {
       setIsProcessing(true)
-      console.log("get signer", {
+      console.log("get signer and user", {
         signerAddress: signer?.signerAddress,
-        
+        user: selectedAccount?.address
       })
       const turnkeySigner = signer?.turnkeySigner
       const signerAddress = signer?.signerAddress
@@ -131,7 +131,7 @@ export function Strategy() {
       const hash = await investInStrategy({
         aggregatorAddress: CONFIG.CONTRACT_ADDRESSES.Aggregator,
         params: {
-          user: signerAddress,
+          user: selectedAccount?.address,
           strategyId: Number(strategyId),
           token,
           amount: _amount
@@ -159,6 +159,7 @@ export function Strategy() {
   const handleSendMessage = async (prompt: string) => {
     const address = selectedAccount?.address as `0x${string}`
     if (!address) return toast.error("Failed to get user address, please try again.")
+    console.log("current user address === ", address)
     await onRequest({ userInput: prompt, userAddress: address })
   }
 
