@@ -30,6 +30,7 @@ export default function AddPasskey({
     }
 
     const credential = await passkeyClient?.createUserPasskey({
+      organizationId: user?.organization.organizationId,
       publicKey: {
         rp: {
           name: "Turnkey - Demo Embedded Wallet",
