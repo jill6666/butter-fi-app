@@ -20,16 +20,16 @@ import { useTradingSigner } from "@/hooks/useTradingSigner"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useBalanceOf } from "@/hooks/useBalanceOf"
 import { CONFIG } from "@/config/protocol";
+import { toast } from "sonner"
+import { CopyIcon, Download, HandCoins, Upload } from "lucide-react"
 
+import { Skeleton } from "./ui/skeleton"
 import { Icons } from "./Icons"
 
 const queryClient = new QueryClient();
 
 function Assets() {
-  const { state } = useWallets()
-  const { ethPrice } = useTokenPrice()
-  const { selectedAccount } = state
-  const { data: trader } = useTradingSigner()
+  const { data: trader, isLoading } = useTradingSigner()
 
   const {
     balance: wmodBalance,
@@ -46,36 +46,49 @@ function Assets() {
 
   // Memoize the balance calculation
   const amount = useMemo(() => {
-    return selectedAccount?.balance
+    return nativeTokenBalance
       ? parseFloat(
-          Number(formatEther(selectedAccount?.balance ?? BigInt(0))).toFixed(8)
+          Number(formatEther(nativeTokenBalance ?? BigInt(0))).toFixed(8)
         ).toString()
       : "0"
-  }, [selectedAccount?.balance])
+  }, [nativeTokenBalance])
 
-  // Memoize the value calculation
-  const valueInUSD = useMemo(() => {
-    return (
-      Number(formatEther(selectedAccount?.balance ?? BigInt(0))) *
-      (ethPrice || 0)
-    ).toFixed(2)
-  }, [selectedAccount?.balance, ethPrice])
+  const handleCopyAddress = (address: `0x${string}`) => {
+    if (address) {
+      navigator.clipboard.writeText(address)
+      toast.success("Address copied to clipboard")
+    }
+  }
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg sm:text-2xl">Assets</CardTitle>
+        <CardTitle className="w-full flex justify-between items-center">
+          <div className="flex justify-between items-center gap-4">
+            <span className="font-medium">
+              Trader Wallet
+            </span>
+            {isLoading ? "Loading..." : trader?.signerAddress ? (
+              <div
+                onClick={() => trader?.signerAddress && handleCopyAddress(trader?.signerAddress)}
+                className="flex w-min cursor-pointer items-center gap-2 mr-2 text-sm"
+              >
+                {truncateAddress(trader?.signerAddress)}
+                <CopyIcon className="h-3 w-3" />
+              </div>
+            ) : (
+              <Skeleton className="h-3 w-32  rounded-sm bg-muted-foreground/50" />
+            )}
+          </div>
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <Table>
           <TableHeader>
             <TableRow className="">
               <TableHead>Asset</TableHead>
-              <TableHead className="hidden sm:table-cell">Address</TableHead>
+              <TableHead className="hidden sm:table-cell">Asset Address</TableHead>
               <TableHead>Amount</TableHead>
-              <TableHead className="hidden sm:table-cell">
-                Value (USD)
-              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -87,49 +100,17 @@ function Assets() {
                 </div>
               </TableCell>
               <TableCell className="hidden font-mono text-xs sm:table-cell">
-                {selectedAccount?.address &&
-                  truncateAddress(selectedAccount?.address)}
+                -
               </TableCell>
-              <TableCell className="hidden sm:table-cell">{amount}</TableCell>
               <TableCell className="hidden sm:table-cell">
-                ${valueInUSD}
+                {isLoadingBalanceNative ? "Loading..." : amount}
               </TableCell>
               <TableCell className="p-2 sm:hidden">
                 <div className="font-medium">
-                  {amount}
+                  {isLoadingBalanceNative ? "Loading..." : amount}
                   <span className="ml-1 text-xs text-muted-foreground">
                     MON
                   </span>
-                </div>
-                <div className=" text-sm text-muted-foreground">
-                  ${valueInUSD}
-                </div>
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell className="p-2 font-medium sm:p-4">
-                <div className="flex items-center space-x-2 text-xs sm:text-sm">
-                  <Icons.monad className="h-6 w-6" />
-                  <span>MON</span>
-                </div>
-              </TableCell>
-              <TableCell className="hidden font-mono text-xs sm:table-cell">
-                {trader?.signerAddress &&
-                  truncateAddress(trader?.signerAddress)}
-              </TableCell>
-              <TableCell className="hidden sm:table-cell">{formatEther(nativeTokenBalance || BigInt(0))}</TableCell>
-              <TableCell className="hidden sm:table-cell">
-                ${valueInUSD}
-              </TableCell>
-              <TableCell className="p-2 sm:hidden">
-                <div className="font-medium">
-                  {formatEther(nativeTokenBalance || BigInt(0))}
-                  <span className="ml-1 text-xs text-muted-foreground">
-                    MON
-                  </span>
-                </div>
-                <div className=" text-sm text-muted-foreground">
-                  ${valueInUSD}
                 </div>
               </TableCell>
             </TableRow>
@@ -140,23 +121,19 @@ function Assets() {
                   <span>WMOD</span>
                 </div>
               </TableCell>
-              <TableCell className="hidden font-mono text-xs sm:table-cell">
-                {trader?.signerAddress &&
-                  truncateAddress(trader?.signerAddress)}
+              <TableCell className="hidden font-mono text-xs sm:table-cell cursor-pointer" onClick={() => {
+                handleCopyAddress(CONFIG.CONTRACT_ADDRESSES.WMOD)
+              }}>
+                {truncateAddress(CONFIG.CONTRACT_ADDRESSES.WMOD)}
               </TableCell>
               <TableCell className="hidden sm:table-cell">{formatEther(wmodBalance || BigInt(0))}</TableCell>
-              <TableCell className="hidden sm:table-cell">
-                ${valueInUSD}
-              </TableCell>
+
               <TableCell className="p-2 sm:hidden">
                 <div className="font-medium">
-                  {formatEther(wmodBalance || BigInt(0))}
+                  {isLoadingBalanceWMOD ? "Loading..." : formatEther(wmodBalance || BigInt(0))}
                   <span className="ml-1 text-xs text-muted-foreground">
                     WMOD
                   </span>
-                </div>
-                <div className=" text-sm text-muted-foreground">
-                  ${valueInUSD}
                 </div>
               </TableCell>
             </TableRow>
@@ -167,24 +144,13 @@ function Assets() {
                   <span>sWMOD</span>
                 </div>
               </TableCell>
-              <TableCell className="hidden font-mono text-xs sm:table-cell">
-                {trader?.signerAddress &&
-                  truncateAddress(trader?.signerAddress)}
+              <TableCell className="hidden font-mono text-xs sm:table-cell cursor-pointer" onClick={() => {
+                handleCopyAddress(CONFIG.CONTRACT_ADDRESSES.sWMOD)
+              }}>
+                {truncateAddress(CONFIG.CONTRACT_ADDRESSES.sWMOD)}
               </TableCell>
-              <TableCell className="hidden sm:table-cell">{formatEther(sWMODBalance || BigInt(0))}</TableCell>
               <TableCell className="hidden sm:table-cell">
-                ${valueInUSD}
-              </TableCell>
-              <TableCell className="p-2 sm:hidden">
-                <div className="font-medium">
-                  {formatEther(sWMODBalance || BigInt(0))}
-                  <span className="ml-1 text-xs text-muted-foreground">
-                    sWMOD
-                  </span>
-                </div>
-                <div className=" text-sm text-muted-foreground">
-                  ${valueInUSD}
-                </div>
+                {isLoadingBalancesWMOD ? "Loading..." : formatEther(sWMODBalance || BigInt(0))}
               </TableCell>
             </TableRow>
           </TableBody>
