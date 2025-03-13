@@ -10,7 +10,7 @@ export enum Role {
 type TMessage = {
   role: Role.USER | Role.ASSISTANT
   content: string
-  type: string
+  type?: string
   strategies?: {
     strategyID: number
     stakeToken: `0x${string}`
