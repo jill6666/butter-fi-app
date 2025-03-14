@@ -29,11 +29,17 @@ Our platform offers seamless wallet integration, ensuring a frictionless user ex
 ## Getting Started
 To start using Butter-Fi, follow these steps:
 
-1. Sign Up: Create an account on the Butter-Fi platform.
+1. **Sign Up**: Create an account with email on the [Butter-Fi platform]('https://butter-fi-app.vercel.app/')
 
-2. Setup: Configure traders and define transaction policies.
+2. **Setup**: Configure traders and define transaction policies. 
 
-3. Explore DeFi Services: Interact with the AI chatbot to execute trades effortlessly
+> Navigate to `/account` and click "Setup Trader and Policies" next to the Users card. (This process may take some time—open the console to check progress or refresh the page.)
+
+3. **Explore DeFi Services**: Interact with the AI chatbot to execute trades effortlessly
+
+
+> Navigate to `/dashboard` and start chatting with Butter!
+
 - Get investment recommendations.
 - Execute transactions on Monad.
 - Check account balances and trading statements.
