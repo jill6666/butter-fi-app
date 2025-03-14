@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 import { investInStrategy } from "@/actions/investInStrategy"
 import { withdrawFromStrategy } from "@/actions/withdrawFromStrategy"
+import { claimReward } from "@/actions/claimReward"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BotIcon } from "lucide-react"
 import CONFIG from "@/config/protocol";
@@ -70,7 +71,7 @@ export function Strategy() {
   const [amount, setAmount] = useState(0)
   const [isProcessing, setIsProcessing] = useState(false)
   const { data: signer, isLoading: isLoadingSigner } = useTradingSigner()
-  const [transactionType, setTransactionType] = useState<"EXECUTE_TRANSACTION" | "WITHDRAW_POSITION" | null>(null);
+  const [transactionType, setTransactionType] = useState<"EXECUTE_TRANSACTION" | "WITHDRAW_POSITION" | "CLAIM_REWARD" | null>(null);
 
   const { allowance, isLoadingAllowance } = useAllowance(
     selectedStrategy?.token,
@@ -90,6 +91,8 @@ export function Strategy() {
       setTransactionType("EXECUTE_TRANSACTION");
     } else if (lastMessage?.type === "WITHDRAW_POSITION") {
       setTransactionType("WITHDRAW_POSITION");
+    } else if (lastMessage?.type === "CLAIM_REWARD") {
+      setTransactionType("CLAIM_REWARD");
     }
   }, [messages])
 
@@ -180,7 +183,6 @@ export function Strategy() {
       });
 
       const turnkeySigner = signer?.turnkeySigner;
-      const signerAddress = signer?.signerAddress;
       const _amount = parseUnits(amount.toString(), 18)
 
       const hash = await withdrawFromStrategy({
@@ -211,6 +213,55 @@ export function Strategy() {
       console.error("withdrawFromStrategy", error);
       toast.error("Oops! Failed to withdraw, please try again.");
       addSystemMessage("❌ Oops! Failed to withdraw, please try again.");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleClaimReward = async (strategyId: string) => {
+    if (!client) return toast.error("Failed to get client, please try again.");
+    if (!walletClient || !signer || !selectedAccount?.address) return;
+
+    try {
+      setIsProcessing(true);
+      console.log("get signer and user", {
+        signerAddress: signer?.signerAddress,
+        user: selectedAccount?.address,
+      });
+
+      const turnkeySigner = signer?.turnkeySigner;
+
+      console.log("claimReward === ", {
+        user: selectedAccount?.address,
+        strategyId: Number(strategyId),
+      });
+      const hash = await claimReward({
+        aggregatorAddress: CONFIG.CONTRACT_ADDRESSES.Aggregator,
+        params: {
+          user: selectedAccount?.address,
+          strategyId: Number(strategyId),
+        },
+        connectedSigner: turnkeySigner,
+      });
+
+      const txnUrl = `${CONFIG.EXPLORER_URL}/tx/${hash}`;
+      toast.success(
+        <>
+          Reward claimed successful:{" "}
+          <a href={txnUrl} target="_blank" rel="noopener noreferrer">
+            {txnUrl}
+          </a>
+        </>
+      );
+      addSystemMessage(`✅ Reward claimed successful! View transaction: ${txnUrl}`)
+
+      refetchBalance();
+      setAmount(0);
+      setSelectedStrategy(null);
+    } catch (error) {
+      console.error("claimReward", error);
+      toast.error("Oops! Failed to claim reward, please try again.");
+      addSystemMessage("❌ Oops! Failed to claim reward, please try again.");
     } finally {
       setIsProcessing(false);
     }
@@ -285,45 +336,51 @@ export function Strategy() {
                                   <div className="py-2 px-4 border border-white/10 rounded">
                                     <p>{selectedStrategy.description}</p>
                                     <div className="flex flex-col gap-4">
-                                      <div className="w-full flex flex-col gap-1">
-                                        <div className="text-sm w-full flex items-center gap-2 justify-between text-white/60">
-                                          Balance: {isLoadingBalance ? "loading..." : balance ? formatEther(balance) : "-"} WMOD
-                                          <Button
-                                            variant="default"
-                                            size="icon"
-                                            onClick={() => setAmount(Number(balance ? formatEther(balance) : "0"))}
-                                          >
-                                            Max
-                                          </Button>
+                                      {transactionType !== "CLAIM_REWARD" && (
+                                        <div className="w-full flex flex-col gap-1">
+                                          <div className="text-sm w-full flex items-center gap-2 justify-between text-white/60">
+                                            Balance: {isLoadingBalance ? "loading..." : balance ? formatEther(balance) : "-"} WMOD
+                                            <Button
+                                              variant="default"
+                                              size="icon"
+                                              onClick={() => setAmount(Number(balance ? formatEther(balance) : "0"))}
+                                            >
+                                              Max
+                                            </Button>
+                                          </div>
+                                          <Input
+                                            type="number"
+                                            value={amount}
+                                            style={{ background: "transparent", height: "40px" }}
+                                            onChange={(e) => setAmount(Number(e.target.value))}
+                                          />
                                         </div>
-                                        <Input
-                                          type="number"
-                                          value={amount}
-                                          style={{ background: "transparent", height: "40px" }}
-                                          onChange={(e) => setAmount(Number(e.target.value))}
-                                        />
-                                      </div>
+                                      )}
                                       <Button
                                         variant="default"
                                         onClick={() => {
-                                            if (transactionType === "EXECUTE_TRANSACTION") {
-                                              console.log("***EXECUTE_TRANSACTION")
-                                              handleInvestInStrategy(selectedStrategy.strategyId, selectedStrategy.token);
-                                            } else if (transactionType === "WITHDRAW_POSITION") {
-                                              console.log("***WITHDRAW_POSITION")
-                                              handleWithdrawPosition(selectedStrategy.strategyId);
-                                            } else {
-                                              console.log("***elseeeeeee")
-                                              console.log("transactionType === ", transactionType)
-                                              toast.error("Oops! Something went wrong, please try again.");
-                                            }
-                                        }}
-                                          disabled={
-                                            isPending ||
-                                            amount <= 0 ||
-                                            isSomethingLoading ||
-                                            (transactionType === "EXECUTE_TRANSACTION" && amount > (balance ? Number(formatEther(balance)) : 0))
+                                          if (transactionType === "EXECUTE_TRANSACTION") {
+                                            console.log("***EXECUTE_TRANSACTION")
+                                            handleInvestInStrategy(selectedStrategy.strategyId, selectedStrategy.token);
+                                          } else if (transactionType === "WITHDRAW_POSITION") {
+                                            console.log("***WITHDRAW_POSITION")
+                                            handleWithdrawPosition(selectedStrategy.strategyId);
+                                          } else if (transactionType === "CLAIM_REWARD") {
+                                            console.log("***CLAIM_REWARD")
+                                            handleClaimReward(selectedStrategy.strategyId);
+
+                                          } else {
+                                            console.log("***elseeeeeee")
+                                            console.log("transactionType === ", transactionType)
+                                            toast.error("Oops! Something went wrong, please try again.");
                                           }
+                                        }}
+                                        disabled={
+                                          isPending ||
+                                          isSomethingLoading ||
+                                          (transactionType !== "CLAIM_REWARD" && amount <= 0) ||
+                                          (transactionType === "EXECUTE_TRANSACTION" && amount > (balance ? Number(formatEther(balance)) : 0))
+                                        }
                                         className="bg-[#6E54FF]"
                                       >
                                         {isProcessing ? (
