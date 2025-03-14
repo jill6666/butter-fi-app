@@ -1,50 +1,52 @@
-# Butter-Fi
+# Butter-Fi: AI-Powered Secure Trading on Monad with Turnkey
 
-<!-- description -->
+Butter-Fi is an AI-powered, secure trading platform built on the Monad blockchain, providing users with a seamless and secure wallet experience through Turnkey's wallet infrastructure. Our platform enhances trading security, efficiency, and automation, allowing users to execute transactions with confidence.
 
-<!-- stack -->
+- App demo: https://butter-fi-app.vercel.app/
+- App repo: https://github.com/jill6666/butter-fi-app
+- Contract repo: https://github.com/WangWang0226/Butter-Fi-Foundry
+- LLM repo: https://github.com/WangWang0226/Butter-Fi-LLM
 
-<!-- features -->
+## Features
 
-<!-- getting started -->
+#### 🔐 Multi-Sig Wallets
+Butter-Fi utilizes Sub-Organizations as end-user-controlled wallets
 
-<!-- learn more -->
+We set up two user roles within a Sub-Organization, each with distinct permissions:
 
-<!-- deploy -->
+1. Admin: The root user with full access and control over all transactions.
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+2. Trader: A restricted API-key-only user, who can only execute transactions within predefined policies.
+
+#### ⚖️ Custom Transaction Policies
+Butter-Fi provides predefined trading strategies, ensuring that every transaction aligns with security best practices. All transactions executed by strategies or users must adhere to clearly defined policies, mitigating risks while maintaining efficiency.
+
+#### 🛠 Embedded Wallets
+Our platform offers seamless wallet integration, ensuring a frictionless user experience. Users retain 100% control over their private keys, which can be exported at any time, ensuring full self-custody.
 
 ## Getting Started
+To start using Butter-Fi, follow these steps:
 
-First, run the development server:
+1. Sign Up: Create an account on the Butter-Fi platform.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+2. Setup: Configure traders and define transaction policies.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+3. Explore DeFi Services: Interact with the AI chatbot to execute trades effortlessly
+- Get investment recommendations.
+- Execute transactions on Monad.
+- Check account balances and trading statements.
+- Modify or exit trading strategies at any time.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Documentation
+For detailed integration and API usage, refer to the official Turnkey SDK/API documentation: [Turnkey API Reference]('https://docs.turnkey.com')
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Contribution
+We welcome contributions from the community! If you're interested in improving Butter-Fi, please contact us for details on how to get involved.
 
-## Learn More
+## License
+Butter-Fi is licensed under the MIT License
 
-To learn more about Next.js, take a look at the following resources:
+## Acknowledgements
+We extend our gratitude to the Monad and Turnkey teams for their support and for providing the infrastructure that powers Butter-Fi.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+📌 Note: This project was developed as part of the "Best use of Turnkey for Monad" bounty, aiming to showcase the seamless integration of Turnkey's wallet infrastructure within the Monad ecosystem.
