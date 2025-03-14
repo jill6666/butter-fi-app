@@ -24,6 +24,8 @@ Butter-Fi provides predefined trading strategies, ensuring that every transactio
 #### 🛠 Embedded Wallets
 Our platform offers seamless wallet integration, ensuring a frictionless user experience. Users retain 100% control over their private keys, which can be exported at any time, ensuring full self-custody.
 
+<img src="public/images/overview.png" alt="Overview" width="1200">
+
 ## Getting Started
 To start using Butter-Fi, follow these steps:
 
@@ -36,6 +38,9 @@ To start using Butter-Fi, follow these steps:
 - Execute transactions on Monad.
 - Check account balances and trading statements.
 - Modify or exit trading strategies at any time.
+
+<img src="public/images/checkPosition.gif" alt="Overview" width="480">
+<img src="public/images/tradeExecute.gif" alt="Overview" width="480">
 
 ## Documentation
 For detailed integration and API usage, refer to the official Turnkey SDK/API documentation: [Turnkey API Reference]('https://docs.turnkey.com')
