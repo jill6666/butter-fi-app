@@ -48,7 +48,7 @@ function UserTagCard() {
       if (!client) throw new Error("Failed to get client")
 
       // The key pair is an ephemeral key, it is used just once and then can be thrown away
-      const publicKey = generateP256KeyPair().publicKeyUncompressed
+      const publicKey = generateP256KeyPair().publicKey
       console.log("generateP256KeyPair... ",  {...generateP256KeyPair()})
 
       await setupAdminAndTrader({
